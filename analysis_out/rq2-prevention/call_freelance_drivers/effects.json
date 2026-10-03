@@ -1,0 +1,129 @@
+{
+ "moved": [
+  {
+   "m": "drivers_acceptance_rate",
+   "f": "driver_decisions",
+   "dz": 0.8
+  },
+  {
+   "m": "passengers_rating_avg",
+   "f": "passenger_experience",
+   "dz": 0.78
+  },
+  {
+   "m": "drivers_starting",
+   "f": "supply",
+   "dz": 0.35
+  },
+  {
+   "m": "rides_failed",
+   "f": "other",
+   "dz": -0.33
+  },
+  {
+   "m": "drivers_removed",
+   "f": "supply",
+   "dz": -0.28
+  },
+  {
+   "m": "drivers_idle_duration_avg",
+   "f": "supply",
+   "dz": -0.22
+  },
+  {
+   "m": "drivers_reject",
+   "f": "driver_decisions",
+   "dz": -0.19
+  },
+  {
+   "m": "passengers_reject",
+   "f": "passenger_decisions",
+   "dz": -0.15
+  }
+ ],
+ "families": [
+  {
+   "f": "other",
+   "v": 0.38
+  },
+  {
+   "f": "market",
+   "v": 0.35
+  },
+  {
+   "f": "passenger_experience",
+   "v": 0.28
+  },
+  {
+   "f": "supply",
+   "v": 0.23
+  },
+  {
+   "f": "driver_decisions",
+   "v": 0.23
+  },
+  {
+   "f": "trip",
+   "v": 0.15
+  }
+ ],
+ "separating": [
+  {
+   "m": "passengers_rating_avg",
+   "f": "passenger_experience",
+   "gap": 0.98,
+   "prevented": 1.31,
+   "stillFails": 0.34
+  },
+  {
+   "m": "drivers_acceptance_rate",
+   "f": "driver_decisions",
+   "gap": 0.34,
+   "prevented": 0.98,
+   "stillFails": 0.64
+  },
+  {
+   "m": "rides_offers_price_uber_avg",
+   "f": "market",
+   "gap": -0.33,
+   "prevented": -0.17,
+   "stillFails": 0.16
+  },
+  {
+   "m": "rides_offers_price_no_surge_avg",
+   "f": "market",
+   "gap": -0.31,
+   "prevented": -0.16,
+   "stillFails": 0.15
+  },
+  {
+   "m": "rides_offers_price_lyft_avg",
+   "f": "market",
+   "gap": -0.28,
+   "prevented": -0.15,
+   "stillFails": 0.13
+  },
+  {
+   "m": "drivers_idle_duration_avg",
+   "f": "supply",
+   "gap": -0.21,
+   "prevented": -0.34,
+   "stillFails": -0.13
+  },
+  {
+   "m": "drivers_removed",
+   "f": "supply",
+   "gap": -0.14,
+   "prevented": -0.35,
+   "stillFails": -0.21
+  },
+  {
+   "m": "drivers_pickup_reject",
+   "f": "driver_decisions",
+   "gap": -0.14,
+   "prevented": -0.18,
+   "stillFails": -0.04
+  }
+ ],
+ "nMetrics": 50
+}

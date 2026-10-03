@@ -1,0 +1,169 @@
+{
+  "generated_from": "rq3-analysis.ipynb",
+  "data_root": "datasets/raw",
+  "index": "failed_requests = w(passengers_new) * (rides_not_served + passengers_cancel) / passengers_new",
+  "index_produced_by": "rq1-healthiness.ipynb",
+  "index_sources": {
+    "rq1-healthiness": 120
+  },
+  "threshold_baseline": "sf_normal_ocean",
+  "thresholds": {
+    "a": 0.3607508728775635,
+    "b": 0.1,
+    "c": 0.8306595821724677,
+    "p99_h": 0.22255903755107478,
+    "p99_c": 0.028211478200948603,
+    "p99_r": 2894.0
+  },
+  "spike_threshold": 0.22255903755107478,
+  "index_components": [
+    "rides_not_served",
+    "passengers_cancel",
+    "passengers_new"
+  ],
+  "simulation_end": 104380,
+  "plot_window": [
+    10800,
+    97180
+  ],
+  "reference_config": [
+    "baseline",
+    "normal"
+  ],
+  "preprocessing": {
+    "window_fill": 60,
+    "aggregate": 600,
+    "cut": 7200,
+    "stride": 20,
+    "analysis_start": 10200
+  },
+  "scenarios": [
+    "normal",
+    "boycott_tncs",
+    "flash_mob",
+    "long_rides",
+    "underground_alarm",
+    "wildcat_strike",
+    "boycott_tncs-long_rides",
+    "flash_mob-boycott_tncs",
+    "flash_mob-long_rides",
+    "flash_mob-wildcat_strike",
+    "underground_alarm-flash_mob",
+    "underground_alarm-long_rides",
+    "underground_alarm-wildcat_strike",
+    "wildcat_strike-boycott_tncs",
+    "wildcat_strike-long_rides"
+  ],
+  "compound_scenarios": [
+    "boycott_tncs-long_rides",
+    "flash_mob-boycott_tncs",
+    "flash_mob-long_rides",
+    "flash_mob-wildcat_strike",
+    "underground_alarm-flash_mob",
+    "underground_alarm-long_rides",
+    "underground_alarm-wildcat_strike",
+    "wildcat_strike-boycott_tncs",
+    "wildcat_strike-long_rides"
+  ],
+  "personalities": [
+    "baseline",
+    "bank_tellers",
+    "students",
+    "managers",
+    "drivers",
+    "bank_tellers_drivers",
+    "students_drivers",
+    "managers_drivers"
+  ],
+  "event_windows": {
+    "normal": [
+      79200,
+      81000
+    ],
+    "boycott_tncs": [
+      79200,
+      82800
+    ],
+    "flash_mob": [
+      79200,
+      81000
+    ],
+    "long_rides": [
+      79200,
+      86400
+    ],
+    "underground_alarm": [
+      79200,
+      81900
+    ],
+    "wildcat_strike": [
+      79200,
+      82800
+    ],
+    "boycott_tncs-long_rides": [
+      79200,
+      86400
+    ],
+    "flash_mob-boycott_tncs": [
+      79200,
+      82800
+    ],
+    "flash_mob-long_rides": [
+      79200,
+      86400
+    ],
+    "flash_mob-wildcat_strike": [
+      79200,
+      82800
+    ],
+    "underground_alarm-flash_mob": [
+      79200,
+      81900
+    ],
+    "underground_alarm-long_rides": [
+      79200,
+      86400
+    ],
+    "underground_alarm-wildcat_strike": [
+      79200,
+      82800
+    ],
+    "wildcat_strike-boycott_tncs": [
+      79200,
+      82800
+    ],
+    "wildcat_strike-long_rides": [
+      79200,
+      86400
+    ]
+  },
+  "files": [
+    "additivity_personalities.csv",
+    "additivity_scenarios.csv",
+    "attribution.csv",
+    "attribution_failed_requests.csv",
+    "causes_by_family.csv",
+    "causes_interaction.csv",
+    "causes_personality.csv",
+    "causes_scenario.csv",
+    "causes_spike.csv",
+    "dashboard.csv",
+    "emergent_interaction.csv",
+    "event_window_levels.csv",
+    "failed_requests_overview.csv",
+    "failing_metric_profile.csv",
+    "failing_spike_detail.csv",
+    "failure_conditions.csv",
+    "failure_detail.csv",
+    "failure_tolerance.csv",
+    "index_series.csv",
+    "signature_personality.csv",
+    "signature_scenario.csv",
+    "spike_decomposition.csv",
+    "spike_decomposition_by_cell.csv",
+    "spike_metric_profile.csv",
+    "spikes.csv",
+    "threshold_summary.csv",
+    "verdict_cells.csv"
+  ]
+}

@@ -1,0 +1,24 @@
+scenario,in_prior,failure,note,prior_only,prior_only_group
+normal,True,False,,False,
+underground_alarm,True,False,hardiness and consistency out of range,False,
+wildcat_strike,True,False,hardiness and consistency out of range,False,
+flash_mob,True,False,hardiness and consistency out of range,False,
+long_rides,True,False,,False,
+boycott_tncs,True,False,,False,
+underground_alarm-flash_mob,False,,,False,
+underground_alarm-long_rides,True,True,,False,
+underground_alarm-wildcat_strike,False,,,False,
+flash_mob-long_rides,True,True,,False,
+flash_mob-wildcat_strike,False,,,False,
+flash_mob-boycott_tncs,True,True,,False,
+wildcat_strike-long_rides,True,True,,False,
+wildcat_strike-boycott_tncs,True,True,,False,
+boycott_tncs-long_rides,False,,,False,
+greedy_drivers,True,False,consistency out of range,True,single
+budget_passengers,True,False,,True,single
+greedy_drivers-underground_alarm,True,True,,True,compound
+greedy_drivers-flash_mob,True,True,,True,compound
+greedy_drivers-wildcat_strike,True,True,,True,compound
+greedy_drivers-long_rides,True,True,,True,compound
+budget_passengers-greedy_drivers,True,False,hardiness and consistency out of range,True,compound
+budget_passengers-wildcat_strike,True,False,hardiness and consistency out of range,True,compound

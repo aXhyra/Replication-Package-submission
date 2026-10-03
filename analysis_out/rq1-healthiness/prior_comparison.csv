@@ -1,0 +1,11 @@
+scenario,label,prior_failure,general_failure,populations_failing
+underground_alarm,UA,False,False,"students, managers, bank tellers, drivers, students + drivers, managers + drivers, bank tellers + drivers"
+wildcat_strike,WS,False,False,
+flash_mob,FM,False,False,bank tellers + drivers
+long_rides,LR,False,False,"drivers, students + drivers, managers + drivers, bank tellers + drivers"
+boycott_tncs,BT,False,False,"drivers, bank tellers + drivers"
+underground_alarm-long_rides,UA + LR,True,True,"general, students, managers, bank tellers, drivers, students + drivers, managers + drivers, bank tellers + drivers"
+flash_mob-long_rides,FM + LR,True,False,"bank tellers, managers + drivers, bank tellers + drivers"
+flash_mob-boycott_tncs,FM + BT,True,False,"students, managers, managers + drivers"
+wildcat_strike-long_rides,WS + LR,True,False,"students + drivers, bank tellers + drivers"
+wildcat_strike-boycott_tncs,WS + BT,True,False,"students, managers, bank tellers, bank tellers + drivers"

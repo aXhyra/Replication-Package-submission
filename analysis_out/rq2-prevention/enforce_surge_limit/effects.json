@@ -1,0 +1,129 @@
+{
+ "moved": [
+  {
+   "m": "drivers_acceptance_rate",
+   "f": "driver_decisions",
+   "dz": 0.09
+  },
+  {
+   "m": "rides_offers_radius_avg",
+   "f": "matching",
+   "dz": -0.05
+  },
+  {
+   "m": "drivers_pickup_reject",
+   "f": "driver_decisions",
+   "dz": -0.05
+  },
+  {
+   "m": "drivers_occupied_duration_avg",
+   "f": "supply",
+   "dz": 0.03
+  },
+  {
+   "m": "drivers_occupied_distance_avg",
+   "f": "supply",
+   "dz": 0.03
+  },
+  {
+   "m": "passengers_no_ratings_count",
+   "f": "passenger_experience",
+   "dz": 0.02
+  },
+  {
+   "m": "drivers_total_length_avg",
+   "f": "supply",
+   "dz": 0.02
+  },
+  {
+   "m": "passengers_pickup_reject",
+   "f": "passenger_decisions",
+   "dz": -0.02
+  }
+ ],
+ "families": [
+  {
+   "f": "market",
+   "v": 0.33
+  },
+  {
+   "f": "other",
+   "v": 0.26
+  },
+  {
+   "f": "supply",
+   "v": 0.2
+  },
+  {
+   "f": "trip",
+   "v": 0.14
+  },
+  {
+   "f": "passenger_experience",
+   "v": 0.13
+  },
+  {
+   "f": "passenger_decisions",
+   "v": 0.1
+  }
+ ],
+ "separating": [
+  {
+   "m": "drivers_busy",
+   "f": "supply",
+   "gap": -0.18,
+   "prevented": -0.14,
+   "stillFails": 0.04
+  },
+  {
+   "m": "rides_offers_price_lyft_avg",
+   "f": "market",
+   "gap": -0.17,
+   "prevented": -0.12,
+   "stillFails": 0.04
+  },
+  {
+   "m": "rides_offers_price_uber_avg",
+   "f": "market",
+   "gap": -0.14,
+   "prevented": -0.09,
+   "stillFails": 0.05
+  },
+  {
+   "m": "rides_offers_price_no_surge_avg",
+   "f": "market",
+   "gap": -0.14,
+   "prevented": -0.1,
+   "stillFails": 0.05
+  },
+  {
+   "m": "drivers_occupied_duration_avg",
+   "f": "supply",
+   "gap": 0.14,
+   "prevented": 0.14,
+   "stillFails": 0.0
+  },
+  {
+   "m": "drivers_occupied_distance_avg",
+   "f": "supply",
+   "gap": 0.13,
+   "prevented": 0.13,
+   "stillFails": 0.0
+  },
+  {
+   "m": "drivers_total_length_avg",
+   "f": "supply",
+   "gap": 0.12,
+   "prevented": 0.12,
+   "stillFails": -0.0
+  },
+  {
+   "m": "drivers_shift_duration_avg",
+   "f": "supply",
+   "gap": 0.12,
+   "prevented": 0.11,
+   "stillFails": -0.0
+  }
+ ],
+ "nMetrics": 50
+}

@@ -1,0 +1,17 @@
+scenario,general,students,managers,bank tellers,drivers,students + drivers,managers + drivers,bank tellers + drivers,prevented
+Normal,-,-,-,-,-,-,-,-,--
+UA,-,s:+2,s:+4,s:+3,c:+2 s:+1,c:-2 s:-12,c:-2 s:+3,c:0 s:+1,0/11
+WS,-,-,-,-,-,-,-,-,--
+FM,-,-,-,-,-,-,-,c:prevented s:+5,1/2
+LR,-,-,-,-,c:prevented s:prevented,c:prevented s:prevented,c:prevented s:prevented,c:prevented s:prevented,8/8
+BT,-,-,-,-,c:prevented s:prevented,-,-,c:prevented s:-1,3/4
+UA + FM,s:-8,s:-1,s:-4,s:-9,c:0 s:-10,c:0 s:-24,c:-3 s:-1,c:-2 s:+2,0/12
+UA + LR,s:+3,s:+9,s:+4,s:+2,c:-2 s:+2,c:0 s:+6,c:+2 s:-10,c:-1 s:0,0/12
+UA + WS,s:-5,s:+1,s:-1,s:+1,c:+2 s:-5,c:+1 s:-4,c:0 s:0,c:+4 s:-1,0/12
+FM + LR,-,-,-,s:+1,-,-,c:prevented s:prevented,c:prevented s:+7,3/5
+FM + WS,s:-1,-,s:prevented,s:prevented,-,-,-,c:-14 s:-28,2/5
+FM + BT,-,s:prevented,s:+3,-,-,-,c:-31 s:prevented,-,2/4
+WS + LR,-,-,-,-,-,c:prevented s:+3,-,c:prevented s:prevented,3/4
+WS + BT,-,s:-7,s:-3,s:-7,-,-,-,c:prevented s:-14,1/5
+BT + LR,-,-,-,-,-,c:prevented s:+2,c:prevented s:prevented,c:prevented s:+2,4/6
+Prevented,0/4,1/6,1/7,1/7,4/12,4/14,7/16,9/24,27/90

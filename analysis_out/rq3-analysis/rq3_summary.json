@@ -1,0 +1,196 @@
+{
+  "acceptance_rate_signature_z": {
+    "students\nfreelance drivers": -1.58,
+    "managers\nfreelance drivers": -4.13,
+    "bank tellers\nfreelance drivers": -5.81,
+    "general\nprofessional drivers": -0.21,
+    "students\nprofessional drivers": -1.71,
+    "managers\nprofessional drivers": -4.22,
+    "bank tellers\nprofessional drivers": -5.97
+  },
+  "drivers_acceptance_rate_in_failing_runs_z": {
+    "pers_dev_z": -0.92,
+    "personality_effect_z": -0.7
+  },
+  "combined_additivity_within_0.03": [
+    43,
+    45
+  ],
+  "combined_additivity_exceptions": [
+    {
+      "scenario": "WS + BT",
+      "population": "bank tellers\nprofessional drivers",
+      "residual": 0.063
+    },
+    {
+      "scenario": "BT",
+      "population": "students\nprofessional drivers",
+      "residual": -0.038
+    }
+  ],
+  "personality_term_positive": [
+    95,
+    105
+  ],
+  "personality_term_never_negative": [
+    "bank tellers\nprofessional drivers",
+    "managers\nfreelance drivers",
+    "managers\nprofessional drivers"
+  ],
+  "personality_term_mean": {
+    "bank tellers\nfreelance drivers": 0.0078,
+    "bank tellers\nprofessional drivers": 0.029,
+    "general\nprofessional drivers": 0.0019,
+    "managers\nfreelance drivers": 0.0141,
+    "managers\nprofessional drivers": 0.0229,
+    "students\nfreelance drivers": 0.0039,
+    "students\nprofessional drivers": 0.0074
+  },
+  "personality_term_largest_in": {
+    "bank tellers\nfreelance drivers": "BT",
+    "bank tellers\nprofessional drivers": "BT",
+    "general\nprofessional drivers": "LR",
+    "managers\nfreelance drivers": "BT",
+    "managers\nprofessional drivers": "LR",
+    "students\nfreelance drivers": "BT",
+    "students\nprofessional drivers": "LR"
+  },
+  "share_of_absolute_effects_in_failing_runs": {
+    "scenario": 0.702,
+    "personality": 0.165,
+    "interaction": 0.133
+  },
+  "failing_only_with_personality": {
+    "runs": 29,
+    "mean_terms": {
+      "scenario": 0.0244,
+      "personality": 0.0181,
+      "interaction": 0.0064
+    },
+    "personality_plus_interaction_exceeds_scenario": 14,
+    "scenario_term_negative": 9
+  },
+  "failing_spike_share_not_served": {
+    "bank tellers\nfreelance drivers": 0.862,
+    "bank tellers\nprofessional drivers": 0.829,
+    "general\nfreelance drivers": 0.794,
+    "general\nprofessional drivers": 0.775,
+    "managers\nfreelance drivers": 0.849,
+    "managers\nprofessional drivers": 0.793,
+    "students\nfreelance drivers": 0.824,
+    "students\nprofessional drivers": 0.78
+  },
+  "failing_spike_not_served_over_cancel_rise": {
+    "bank tellers\nfreelance drivers": 4.46,
+    "bank tellers\nprofessional drivers": 2.68,
+    "general\nfreelance drivers": 1.92,
+    "general\nprofessional drivers": 1.38,
+    "managers\nfreelance drivers": 3.03,
+    "managers\nprofessional drivers": 1.9,
+    "students\nfreelance drivers": 1.94,
+    "students\nprofessional drivers": 1.49
+  },
+  "personality_term_family_z": {
+    "students\nfreelance drivers": {
+      "demand": 0.04,
+      "driver_decisions": 0.1,
+      "market": 0.06,
+      "matching": 0.06,
+      "passenger_decisions": 0.46,
+      "passenger_experience": 0.1,
+      "supply": 0.21,
+      "trip": 0.09
+    },
+    "managers\nfreelance drivers": {
+      "demand": 0.04,
+      "driver_decisions": 0.09,
+      "market": 0.52,
+      "matching": 0.05,
+      "passenger_decisions": 1.04,
+      "passenger_experience": 0.16,
+      "supply": 0.33,
+      "trip": 0.08
+    },
+    "bank tellers\nfreelance drivers": {
+      "demand": 0.04,
+      "driver_decisions": 0.1,
+      "market": 0.26,
+      "matching": 0.06,
+      "passenger_decisions": 1.42,
+      "passenger_experience": 0.19,
+      "supply": 0.19,
+      "trip": 0.09
+    },
+    "general\nprofessional drivers": {
+      "demand": 0.09,
+      "driver_decisions": 0.23,
+      "market": 0.12,
+      "matching": 0.09,
+      "passenger_decisions": 0.2,
+      "passenger_experience": 0.28,
+      "supply": 0.25,
+      "trip": 0.14
+    },
+    "students\nprofessional drivers": {
+      "demand": 0.14,
+      "driver_decisions": 0.36,
+      "market": 0.2,
+      "matching": 0.15,
+      "passenger_decisions": 0.58,
+      "passenger_experience": 0.27,
+      "supply": 0.19,
+      "trip": 0.14
+    },
+    "managers\nprofessional drivers": {
+      "demand": 0.13,
+      "driver_decisions": 0.31,
+      "market": 0.19,
+      "matching": 0.1,
+      "passenger_decisions": 1.15,
+      "passenger_experience": 0.26,
+      "supply": 0.28,
+      "trip": 0.24
+    },
+    "bank tellers\nprofessional drivers": {
+      "demand": 0.17,
+      "driver_decisions": 0.33,
+      "market": 0.17,
+      "matching": 0.13,
+      "passenger_decisions": 1.54,
+      "passenger_experience": 0.35,
+      "supply": 0.23,
+      "trip": 0.16
+    }
+  },
+  "interaction_term_market_z": {
+    "students\nfreelance drivers": 0.38,
+    "managers\nfreelance drivers": 0.68,
+    "bank tellers\nfreelance drivers": 0.45,
+    "general\nprofessional drivers": 0.3,
+    "students\nprofessional drivers": 0.39,
+    "managers\nprofessional drivers": 0.45,
+    "bank tellers\nprofessional drivers": 0.38
+  },
+  "lead_before_failing_spikes_z_range": {
+    "rides_offers_price_no_surge_avg": [
+      3.7,
+      7.7
+    ],
+    "rides_offers_price_uber_avg": [
+      3.7,
+      7.4
+    ],
+    "rides_offers_price_lyft_avg": [
+      3.8,
+      8.3
+    ],
+    "passengers_acceptance_rate": [
+      -4.8,
+      -1.9
+    ],
+    "drivers_idle_duration_avg": [
+      2.5,
+      3.8
+    ]
+  }
+}

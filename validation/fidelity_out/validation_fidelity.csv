@@ -1,0 +1,3 @@
+scope,hours,start,end,traffic_source,traffic_sim,traffic_accuracy,traffic_geh,pickups_source,pickups_sim,pickups_accuracy,pickups_geh,dropoffs_source,dropoffs_sim,dropoffs_accuracy,dropoffs_geh
+no-warmup,28,2025-11-09 21:00:00,2025-11-11 01:00:00,1157163,1081732,93.48,13.47,149699,149062,99.57,0.31,149643,148448,99.2,0.58
+all-hours,24,2025-11-10 00:00:00,2025-11-11 00:00:00,1001082,934506,93.35,13.81,129965,129787,99.86,0.1,129927,129763,99.87,0.09

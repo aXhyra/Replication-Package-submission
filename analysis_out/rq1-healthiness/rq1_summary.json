@@ -1,0 +1,55 @@
+{
+  "runs": 120,
+  "failures": 57,
+  "single_failures": 14,
+  "compound_failures": 43,
+  "minutes_to_failure": {
+    "median": 59.2,
+    "q1": 54.0,
+    "q3": 63.5,
+    "min": 5.2,
+    "max": 147.8
+  },
+  "normal_general_level": 0.177,
+  "normal_max_abs_diff": 0.013,
+  "general_failures": 4,
+  "failures_per_population": {
+    "general": 4,
+    "students": 6,
+    "managers": 7,
+    "bank tellers": 7,
+    "drivers": 6,
+    "students + drivers": 7,
+    "managers + drivers": 8,
+    "bank tellers + drivers": 12
+  },
+  "general_passes_scenarios": 10,
+  "failures_hidden_without_personalities": 29,
+  "scenarios_exposed_with_personalities": 13,
+  "scenarios_only_professional_drivers": [
+    "FM",
+    "LR",
+    "BT",
+    "WS + LR",
+    "BT + LR"
+  ],
+  "scenarios_only_passenger_personalities": [
+    "FM",
+    "FM + LR",
+    "FM + BT",
+    "WS + LR",
+    "WS + BT",
+    "BT + LR"
+  ],
+  "prior_failing_scenarios": [
+    "UA + LR",
+    "FM + LR",
+    "FM + BT",
+    "WS + LR",
+    "WS + BT"
+  ],
+  "prior_failures_reproduced_by_general": [
+    "UA + LR"
+  ],
+  "single_event_verdicts_agree": true
+}

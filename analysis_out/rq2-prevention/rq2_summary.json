@@ -1,0 +1,224 @@
+{
+  "trigger_min": 5,
+  "detection_median_min": {
+    "passengers_unassigned": 1.1,
+    "passengers_drivers_ratio": 1.6,
+    "rides_offers_price_uber_avg": 2.9,
+    "rides_offers_price_no_surge_avg": 2.9,
+    "rides_offers_price_lyft_avg": 3.9,
+    "passengers_acceptance_rate": 4.6,
+    "rides_not_served": 9.5,
+    "failed_requests (index deviates)": 10.4,
+    "failed_requests (hardiness threshold crossed)": 19.9,
+    "passengers_cancel": 29.9,
+    "drivers_busy": 30.9,
+    "drivers_idle_duration_avg": 41.5,
+    "HCS failure declared": 59.2
+  },
+  "call_freelance_drivers": {
+    "prevented": 15,
+    "prevented_per_population": {
+      "drivers": 2,
+      "students + drivers": 3,
+      "managers + drivers": 3,
+      "bank tellers + drivers": 7
+    },
+    "still_failing_shift_min": {
+      "min": -31.1,
+      "max": 3.8,
+      "median": -0.2
+    },
+    "moved": [
+      {
+        "m": "drivers_acceptance_rate",
+        "f": "driver_decisions",
+        "dz": 0.8
+      },
+      {
+        "m": "passengers_rating_avg",
+        "f": "passenger_experience",
+        "dz": 0.78
+      },
+      {
+        "m": "drivers_starting",
+        "f": "supply",
+        "dz": 0.35
+      },
+      {
+        "m": "rides_failed",
+        "f": "other",
+        "dz": -0.33
+      },
+      {
+        "m": "drivers_removed",
+        "f": "supply",
+        "dz": -0.28
+      }
+    ],
+    "families": [
+      {
+        "f": "other",
+        "v": 0.38
+      },
+      {
+        "f": "market",
+        "v": 0.35
+      },
+      {
+        "f": "passenger_experience",
+        "v": 0.28
+      },
+      {
+        "f": "supply",
+        "v": 0.23
+      }
+    ],
+    "separating": [
+      {
+        "m": "passengers_rating_avg",
+        "f": "passenger_experience",
+        "gap": 0.98,
+        "prevented": 1.31,
+        "stillFails": 0.34
+      },
+      {
+        "m": "drivers_acceptance_rate",
+        "f": "driver_decisions",
+        "gap": 0.34,
+        "prevented": 0.98,
+        "stillFails": 0.64
+      },
+      {
+        "m": "rides_offers_price_uber_avg",
+        "f": "market",
+        "gap": -0.33,
+        "prevented": -0.17,
+        "stillFails": 0.16
+      },
+      {
+        "m": "rides_offers_price_no_surge_avg",
+        "f": "market",
+        "gap": -0.31,
+        "prevented": -0.16,
+        "stillFails": 0.15
+      },
+      {
+        "m": "rides_offers_price_lyft_avg",
+        "f": "market",
+        "gap": -0.28,
+        "prevented": -0.15,
+        "stillFails": 0.13
+      }
+    ]
+  },
+  "enforce_surge_limit": {
+    "prevented": 12,
+    "prevented_per_population": {
+      "general": 0,
+      "students": 1,
+      "managers": 1,
+      "bank tellers": 1,
+      "drivers": 2,
+      "students + drivers": 1,
+      "managers + drivers": 4,
+      "bank tellers + drivers": 2
+    },
+    "still_failing_shift_min": {
+      "min": -27.5,
+      "max": 8.7,
+      "median": 0.2
+    },
+    "moved": [
+      {
+        "m": "drivers_acceptance_rate",
+        "f": "driver_decisions",
+        "dz": 0.09
+      },
+      {
+        "m": "rides_offers_radius_avg",
+        "f": "matching",
+        "dz": -0.05
+      },
+      {
+        "m": "drivers_pickup_reject",
+        "f": "driver_decisions",
+        "dz": -0.05
+      },
+      {
+        "m": "drivers_occupied_duration_avg",
+        "f": "supply",
+        "dz": 0.03
+      },
+      {
+        "m": "drivers_occupied_distance_avg",
+        "f": "supply",
+        "dz": 0.03
+      }
+    ],
+    "families": [
+      {
+        "f": "market",
+        "v": 0.33
+      },
+      {
+        "f": "other",
+        "v": 0.26
+      },
+      {
+        "f": "supply",
+        "v": 0.2
+      },
+      {
+        "f": "trip",
+        "v": 0.14
+      }
+    ],
+    "separating": [
+      {
+        "m": "drivers_busy",
+        "f": "supply",
+        "gap": -0.18,
+        "prevented": -0.14,
+        "stillFails": 0.04
+      },
+      {
+        "m": "rides_offers_price_lyft_avg",
+        "f": "market",
+        "gap": -0.17,
+        "prevented": -0.12,
+        "stillFails": 0.04
+      },
+      {
+        "m": "rides_offers_price_uber_avg",
+        "f": "market",
+        "gap": -0.14,
+        "prevented": -0.09,
+        "stillFails": 0.05
+      },
+      {
+        "m": "rides_offers_price_no_surge_avg",
+        "f": "market",
+        "gap": -0.14,
+        "prevented": -0.1,
+        "stillFails": 0.05
+      },
+      {
+        "m": "drivers_occupied_duration_avg",
+        "f": "supply",
+        "gap": 0.14,
+        "prevented": 0.14,
+        "stillFails": 0.0
+      }
+    ]
+  },
+  "complementarity": {
+    "both": 8,
+    "only_call_freelance_drivers": 7,
+    "only_enforce_surge_limit": 4,
+    "any": 19
+  },
+  "prevention_table_total": [
+    27,
+    90
+  ]
+}

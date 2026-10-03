@@ -1,0 +1,2046 @@
+<meta charset="utf-8">
+<title>OCEAN Results Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ============================================================
+   Tokens - complete light palette on bare :root, redefined for
+   the two dark states. Nothing is defined only inside a block.
+   ============================================================ */
+:root {
+  color-scheme: light;
+  --ground:  #eef1ef;
+  --panel:   #ffffff;
+  --panel-2: #f6f8f7;
+  --panel-3: #eceff0;
+  --ink:     #131a21;
+  --ink-2:   #4d5863;
+  --ink-3:   #7c8792;
+  --rule:    #dee3e5;
+  --rule-2:  #c6cdd1;
+  --ring:    #131a21;
+
+  /* sequential ramp - blue, light -> dark (magnitude) */
+  --r0: #f2f5f6; --r1: #cde2fb; --r2: #9ec5f4; --r3: #6da7ec;
+  --r4: #2a78d6; --r5: #1c5cab; --r6: #0d366b;
+  --r-hi-text: #ffffff;
+  --r-lo-text: #131a21;
+
+  /* diverging pair - blue <-> red, gray midpoint (polarity) */
+  --d-neg-2: #e34948; --d-neg-1: #f3aead;
+  --d-mid:   #f0efec;
+  --d-pos-1: #b7d3f6; --d-pos-2: #2a78d6;
+
+  /* categorical - validated slots 1-3 (identity) */
+  --cat-1: #2a78d6; --cat-2: #eb6834; --cat-3: #1baf7a;
+
+  /* header roles - the two personality dimensions of a column */
+  --role-pass: #131a21;
+  --role-drv:  #35657a;
+
+  /* status - fixed, never themed; always shipped with icon + label */
+  --critical: #d03b3b;
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --critical-bg: #fbeaea;
+  --good-bg:     #e9f6e9;
+  /* prevention: a failure that the strategy removed */
+  --prevented:    #2a78d6;
+  --prevented-bg: #e8f1fd;
+
+  --shadow: 0 1px 2px rgba(19,26,33,.05), 0 4px 14px rgba(19,26,33,.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:  #0d1015; --panel: #171b21; --panel-2: #1d222a; --panel-3: #232932;
+    --ink:     #e7ebef; --ink-2: #9ba7b3; --ink-3: #6e7a87;
+    --rule:    #262d36; --rule-2: #39424c; --ring: #e7ebef;
+    --r0: #1a1f27; --r1: #16304c; --r2: #184f95; --r3: #256abf;
+    --r4: #3987e5; --r5: #6da7ec; --r6: #9ec5f4;
+    --r-hi-text: #0d1015; --r-lo-text: #e7ebef;
+    --d-neg-2: #e66767; --d-neg-1: #6d2b2b;
+    --d-mid: #383835;
+    --d-pos-1: #1c3f63; --d-pos-2: #3987e5;
+    --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70;
+    --role-pass: #e7ebef; --role-drv: #8fc0d0;
+    --critical-bg: #2c1719; --good-bg: #14261a; --prevented-bg: #13243a; --prevented-bg: #13243a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:  #0d1015; --panel: #171b21; --panel-2: #1d222a; --panel-3: #232932;
+  --ink:     #e7ebef; --ink-2: #9ba7b3; --ink-3: #6e7a87;
+  --rule:    #262d36; --rule-2: #39424c; --ring: #e7ebef;
+  --r0: #1a1f27; --r1: #16304c; --r2: #184f95; --r3: #256abf;
+  --r4: #3987e5; --r5: #6da7ec; --r6: #9ec5f4;
+  --r-hi-text: #0d1015; --r-lo-text: #e7ebef;
+  --d-neg-2: #e66767; --d-neg-1: #6d2b2b;
+  --d-mid: #383835;
+  --d-pos-1: #1c3f63; --d-pos-2: #3987e5;
+  --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70;
+  --role-pass: #e7ebef; --role-drv: #8fc0d0;
+  --critical-bg: #2c1719; --good-bg: #14261a;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1400px; margin: 0 auto; padding: 30px 26px 84px; display: flex; flex-direction: column; gap: 26px; }
+h1,h2,h3 { font-family: Archivo, "IBM Plex Sans", sans-serif; margin: 0; text-wrap: pretty; letter-spacing: -.015em; }
+h1 { font-size: 30px; font-weight: 700; line-height: 1.15; }
+h2 { font-size: 17px; font-weight: 600; }
+h3 { font-size: 13px; font-weight: 600; }
+p { margin: 0; }
+.mono, code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+:where(button, a, [tabindex]):focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 3px; }
+
+/* ---------- masthead + nav ---------- */
+.masthead { display: flex; flex-direction: column; gap: 12px; }
+.masthead .lede { color: var(--ink-2); font-size: 14.5px; }
+.crumbs { display: flex; align-items: center; gap: 7px; font-size: 12.5px; flex-wrap: wrap; }
+.crumbs button { font: inherit; font-size: 12.5px; background: none; border: 0; padding: 0; color: var(--ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--rule-2); }
+.crumbs button:hover { color: var(--ink); }
+.crumbs .sep { color: var(--ink-3); }
+.crumbs .here { color: var(--ink); font-weight: 500; }
+
+.formula { border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 0 7px 7px 0; background: var(--panel-2); padding: 10px 15px; font-size: 12.5px; color: var(--ink-2); overflow-x: auto; white-space: nowrap; }
+.formula b { color: var(--ink); font-weight: 500; }
+
+.provenance { display: flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 7px; background: var(--panel); overflow: hidden; }
+.provenance div { padding: 8px 15px; border-right: 1px solid var(--rule); display: flex; flex-direction: column; gap: 1px; flex: 1 1 auto; }
+.provenance div:last-child { border-right: 0; }
+.provenance dt { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.provenance dd { margin: 0; font-size: 12.5px; }
+
+/* ---------- segmented toggle ---------- */
+.seg { display: flex; border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden;
+       box-shadow: 0 1px 0 rgba(19, 26, 33, .05); }
+.seg button { font: inherit; font-size: 12.5px; font-weight: 500; padding: 7px 15px; border: 0;
+              border-right: 1px solid var(--rule-2); background: var(--panel-2);
+              color: var(--ink-2); cursor: pointer; white-space: nowrap;
+              text-decoration: underline; text-underline-offset: 3px;
+              text-decoration-color: var(--rule-2); transition: background .1s ease; }
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--panel-3); color: var(--ink); text-decoration-color: var(--ink-3); }
+.seg button:active { background: var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel);
+                                   text-decoration-color: var(--panel); }
+@media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
+
+/* ---------- stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 7px; overflow: hidden; }
+.stat { background: var(--panel); padding: 12px 16px; display: flex; flex-direction: column; gap: 1px; }
+.stat .v { font-family: Archivo, sans-serif; font-size: 24px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 11.5px; color: var(--ink-2); }
+
+/* ---------- panels ---------- */
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 9px; box-shadow: var(--shadow); }
+.panel-head { padding: 15px 18px 12px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; align-items: flex-end; }
+.panel-head p { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
+.panel-body { padding: 16px 18px; }
+
+/* ---------- results table ---------- */
+.tscroll { overflow-x: auto; }
+table.results { border-collapse: separate; border-spacing: 2px; width: 100%; min-width: 960px; table-layout: fixed; }
+table.results th.corner { width: 216px; vertical-align: bottom; padding: 0 12px 6px 0; }
+table.results th.corner .key { display: block; font-size: 11.5px; font-weight: 600; line-height: 1.25; }
+table.results th.corner .key.ps { color: var(--role-pass); }
+table.results th.corner .key.dr { color: var(--role-drv); }
+table.results th.pers { padding: 0 0 6px; vertical-align: bottom; }
+table.results th.pers button { width: 100%; font: inherit; font-size: 11.5px; font-weight: 600; background: none; border: 0; padding: 3px 2px; color: var(--ink); cursor: pointer; line-height: 1.25; border-bottom: 2px solid var(--rule-2); }
+table.results th.pers button:hover { border-bottom-color: var(--ink); background: var(--panel-2); }
+table.results th.pers .ps { display: block; color: var(--role-pass); }
+table.results th.pers .dr { display: block; color: var(--role-drv); }
+tr.group td { padding: 14px 0 4px; font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+th.scen { text-align: left; padding: 0 12px 0 0; vertical-align: middle; }
+th.scen button { font: inherit; font-size: 12.5px; font-weight: 500; text-align: left; background: none; border: 0; padding: 3px 0; color: var(--ink); cursor: pointer; width: 100%; }
+th.scen button:hover .nm { text-decoration: underline; text-underline-offset: 2px; }
+th.scen .nm { display: block; }
+/* prior-only rows have no button to inherit from, so match it here */
+th.scen > .nm { font-size: 12.5px; font-weight: 500; color: var(--ink); padding: 3px 0; }
+th.scen .mech { display: block; font-size: 10px; color: var(--ink-3); font-weight: 400; line-height: 1.3; }
+td.rc { padding: 0; }
+button.verdict {
+  width: 100%; min-height: 42px; border: 1px solid var(--rule); border-radius: 4px; cursor: pointer;
+  font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0; padding: 5px 4px; background: var(--panel-2); color: var(--ink-2);
+}
+button.verdict:hover { border-color: var(--ink-3);
+                       box-shadow: 0 0 0 2px var(--panel), 0 0 0 3px var(--ink-3); }
+button.verdict .g { font-size: 13px; font-weight: 700; line-height: 1.15; letter-spacing: .02em; }
+button.verdict .ts { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-variant-numeric: tabular-nums; opacity: .85; }
+button.verdict.fail { background: var(--critical-bg); border-color: var(--critical); color: var(--critical); }
+button.verdict.pass { background: var(--good-bg); border-color: color-mix(in srgb, var(--good) 45%, transparent); color: var(--good); }
+button.verdict.prevented { background: var(--prevented-bg); border-color: var(--prevented); color: var(--prevented); }
+button.verdict.prevented:hover { filter: brightness(1.12) saturate(1.15);
+                                 box-shadow: 0 0 0 2px var(--panel), 0 0 0 3px var(--prevented); }
+button.verdict.notrun { background: var(--panel-2); border-color: var(--rule); color: var(--ink-3);
+                        cursor: default; }
+button.verdict.fail:hover, button.verdict.pass:hover { filter: brightness(1.18) saturate(1.2); }
+button.verdict.fail:hover { box-shadow: 0 0 0 2px var(--panel), 0 0 0 3px var(--critical); }
+button.verdict.pass:hover { box-shadow: 0 0 0 2px var(--panel), 0 0 0 3px var(--good); }
+
+.paperv { display: flex; align-items: center; justify-content: center; min-height: 42px;
+          font-size: 11.5px; font-weight: 600; letter-spacing: .02em; cursor: default; }
+.paperv.fail { color: var(--critical); }
+.paperv.pass { color: var(--good); }
+.paperv.absent { color: var(--ink-3); font-weight: 400; }
+table.results th.paper { text-align: center; }
+table.results th.paper span { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink);
+                              padding-bottom: 5px; border-bottom: 2px solid var(--rule-2); }
+table.results th.paper .src { font-size: 10px; font-weight: 400; color: var(--ink-3); border: 0; padding: 0; }
+
+/* ---------- verdict banner ---------- */
+.verdict-banner { display: flex; gap: 13px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--rule); border-left: 4px solid var(--ink-3); border-radius: 0 8px 8px 0; background: var(--panel); }
+.verdict-banner.fail { border-left-color: var(--critical); background: var(--critical-bg); }
+.verdict-banner.pass { border-left-color: var(--good); background: var(--good-bg); }
+.verdict-banner .vg { font-family: Archivo, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+.verdict-banner.fail .vg { color: var(--critical); }
+.verdict-banner.pass .vg { color: var(--good); }
+.verdict-banner p { font-size: 13px; color: var(--ink-2); }
+.verdict-banner strong { color: var(--ink); font-weight: 600; }
+
+
+/* ---------- figures ---------- */
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.fig { background: var(--panel-2); padding: 9px 12px; }
+.fig .v { font-family: "IBM Plex Mono", monospace; font-size: 15.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.fig .k { font-size: 10.5px; color: var(--ink-3); line-height: 1.35; }
+
+
+.blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+          gap: 30px 48px; }   /* row gap, column gap - side-by-side blocks need the wider one */
+.block .sub { font-size: 11.5px; color: var(--ink-3); margin: 2px 0 11px; line-height: 1.45; }
+
+/* signed bars */
+.rows { display: flex; flex-direction: column; gap: 7px; }
+.row-i { display: grid; grid-template-columns: 104px 1fr 64px; align-items: center; gap: 10px; }
+.row-i .lab { font-size: 12px; color: var(--ink-2); }
+.row-i .track { position: relative; height: 15px; background: var(--panel-3); border-radius: 3px; }
+.row-i .track::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--rule-2); }
+.row-i .bar { position: absolute; top: 2px; bottom: 2px; border-radius: 2px; }
+.row-i .v { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+.row-i.total { border-top: 1px solid var(--rule); padding-top: 7px; }
+.row-i.total .lab, .row-i.total .v { font-weight: 600; color: var(--ink); }
+
+/* magnitude bars (single direction) */
+.mrow { display: grid; grid-template-columns: 1fr 54px; gap: 10px; align-items: center; font-size: 12px; }
+.mrow .lt { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.mrow .mt { position: relative; height: 13px; background: var(--panel-3); border-radius: 3px; flex: 1; min-width: 40px; }
+.mrow .mt i { position: absolute; left: 0; top: 2px; bottom: 2px; border-radius: 2px; background: var(--r4); display: block; }
+.mrow .nm { white-space: nowrap; }
+.mrow .v { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* stacked */
+.stack { display: flex; height: 26px; border-radius: 3px; overflow: hidden; gap: 2px; background: var(--panel-3); }
+.stack span { display: block; min-width: 2px; }
+.sl { display: grid; grid-template-columns: 12px 1fr auto 50px; gap: 8px; align-items: center; font-size: 12px; margin-top: 6px; }
+.sl i { width: 10px; height: 10px; border-radius: 2px; display: block; }
+.sl .n { color: var(--ink-2); }
+.sl .v, .sl .p { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.sl .p { color: var(--ink-3); font-size: 11px; text-align: right; }
+
+/* metric tables */
+table.data { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.data th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; padding: 0 9px 6px 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+table.data td { padding: 6px 9px 6px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+table.data tr:last-child td { border-bottom: 0; }
+table.data .ml { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; }
+table.data .n { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+table.data .fam { font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
+.up { color: var(--d-pos-2); }
+.down { color: var(--d-neg-2); }
+.muted { color: var(--ink-3); }
+.none { color: var(--ink-3); font-style: italic; font-size: 12px; }
+
+/* mini list of cells */
+.minicells { display: flex; flex-wrap: wrap; gap: 6px; }
+.minicells button { font: inherit; font-size: 11.5px; padding: 4px 9px; border-radius: 4px; border: 1px solid var(--rule-2); background: var(--panel-2); color: var(--ink-2); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.minicells button:hover { border-color: var(--ink-3); color: var(--ink); }
+.minicells button.fail { background: var(--critical-bg); border-color: color-mix(in srgb, var(--critical) 40%, transparent); color: var(--critical); }
+.minicells button.fail:hover { border-color: var(--critical); color: var(--critical); background: color-mix(in srgb, var(--critical) 14%, var(--critical-bg)); }
+.minicells button .b { font-weight: 700; }
+.minicells button.notrun { background: var(--panel-2); border-color: var(--rule); color: var(--ink-3); cursor: default; }
+.minicells button.pass2 { background: var(--good-bg); border-color: color-mix(in srgb, var(--good) 45%, transparent); color: var(--good); }
+.minicells button.pass2:hover { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--good-bg)); }
+.minicells button.warn { background: color-mix(in srgb, var(--warning) 14%, var(--panel-2)); border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: color-mix(in srgb, var(--warning) 70%, var(--ink)); }
+.minicells button.warn:hover { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 26%, var(--panel-2)); }
+button.lnk { font: inherit; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--rule-2); }
+button.lnk:hover { text-decoration-color: var(--ink-3); }
+.cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 4px 2px; }
+.cta button { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--panel); cursor: pointer; }
+.cta button:hover { filter: brightness(1.25); }
+.cta .note { font-size: 12px; color: var(--ink-2); }
+.pat { display: flex; flex-direction: column; gap: 22px; }
+.cond { display: flex; flex-direction: column; gap: 14px; }
+.cond .who { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.cond .who h4 { font-size: 12.5px; font-weight: 600; margin: 0; }
+.cond .who .n { font-size: 11px; color: var(--ink-3); }
+.cond .who button { font: inherit; font-size: 11px; background: none; border: 0; padding: 0; color: var(--ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--rule-2); }
+table.data td.tol { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; }
+.summary { margin: 0; padding-left: 18px; }
+.summary li { font-size: 13px; line-height: 1.6; margin-bottom: 7px; }
+.summary li b { font-weight: 600; }
+.pat h3 { font-size: 13px; font-weight: 600; margin: 0 0 3px; }
+.pat p.sub { font-size: 12px; color: var(--ink-2); margin: 0 0 9px; line-height: 1.5; }
+.pat .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; }
+.pat .tier { border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; background: var(--panel-2); }
+.pat .tier .t { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-bottom: 7px; }
+.pat .tier .t b { color: var(--ink); }
+.pat table.data td.n { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.pat .flip { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.pat .flip .row { display: grid; grid-template-columns: 200px 1fr; gap: 10px; align-items: start; }
+.pat .flip .who { font-weight: 500; }
+.pat .flip .lst { display: flex; flex-wrap: wrap; gap: 5px; }
+.pat .flip .lst span.k { font-size: 10.5px; color: var(--ink-3); align-self: center; margin-right: 2px; }
+.pat .read li { font-size: 12.5px; line-height: 1.55; margin-bottom: 4px; }
+.tip { cursor: help; text-decoration: underline dotted; text-decoration-color: var(--rule-2); text-underline-offset: 3px; }
+#tooltip { position: fixed; z-index: 50; max-width: 340px; padding: 8px 11px; border-radius: 6px;
+           background: var(--ink); color: var(--panel); font-size: 12px; line-height: 1.45;
+           box-shadow: var(--shadow); pointer-events: none; opacity: 0; transition: opacity .08s ease; }
+#tooltip.on { opacity: 1; }
+
+.causes { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px,1fr)); gap: 20px; }
+.cause .sub { font-size: 11px; color: var(--ink-3); margin: 2px 0 9px; line-height: 1.4; }
+.cause ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.cause li { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; border-bottom: 1px dotted var(--rule); padding-bottom: 4px; }
+.cause li:last-child { border-bottom: 0; }
+.cause .m { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; word-break: break-word; }
+.cause .z { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 11.5px; flex: none; }
+
+.legend { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 13px; font-size: 11.5px; color: var(--ink-2); }
+.sw { display: inline-flex; align-items: center; gap: 5px; }
+.sw i { width: 10px; height: 10px; border-radius: 2px; display: block; flex: none; }
+
+.glossary { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 20px 26px; }
+.gterm { display: flex; flex-direction: column; gap: 4px; }
+.gterm h3 { color: var(--ink); }
+.gterm p { font-size: 12.5px; color: var(--ink-2); }
+.gterm .eg { font-size: 11.5px; color: var(--ink-3); border-left: 2px solid var(--rule-2); padding-left: 9px; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.chart .ax { fill: var(--ink-3); font-size: 15px; }
+.chart .rd { fill: var(--ink); font-size: 16px; }
+.chart .gl { stroke: var(--rule); stroke-width: 1; }
+.readout { font-size: 11.5px; color: var(--ink-2); min-height: 1.5em; }
+footer { font-size: 11.5px; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 16px; line-height: 1.6; }
+footer code { color: var(--ink-2); }
+.hr { height: 1px; background: var(--rule); margin: 22px 0; border: 0; }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Ride-hailing simulation &middot; San Francisco</p>
+      <h1>OCEAN Results Dashboard</h1>
+    </div>
+    <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+  </header>
+
+  <main id="view"></main>
+
+  <footer id="footer"></footer>
+</div>
+
+<script id="payload" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  const D = JSON.parse(document.getElementById("payload").textContent);
+  const M = D.meta;
+  const SC = M.scenarios, PE = M.personalities;
+  const $ = (id) => document.getElementById(id);
+
+  // Every string here is authored in this file, never user input, so inline markup is safe:
+  // a value containing a tag is set as HTML, anything else is escaped as plain text. That
+  // lets captions carry <b>, <em> or <span class="mono"> without a separate helper.
+  const HAS_TAG = /<[a-z][^>]*>/i;
+  const el = (t, c, x) => {
+    const n = document.createElement(t);
+    if (c) n.className = c;
+    if (x != null) {
+      if (typeof x === "string" && HAS_TAG.test(x)) n.innerHTML = x;
+      else n.textContent = x;
+    }
+    return n;
+  };
+  const add = (p, ...kids) => { kids.forEach((k) => k && p.append(k)); return p; };
+  const num = (v, n) => (v == null || Number.isNaN(v)) ? "\u2013" : Number(v).toFixed(n);
+  const sgn = (v, n) => (v == null || Number.isNaN(v)) ? "\u2013" : (v > 0 ? "+" : v < 0 ? "\u2212" : "") + Math.abs(v).toFixed(n);
+  const int = (v) => (v == null || Number.isNaN(v)) ? "\u2013" : Math.round(v).toLocaleString("en-US");
+
+  const PRETTY = {
+    baseline: ["General", "General"],
+    bank_tellers: ["Bank Tellers", "General"],
+    students: ["Students", "General"],
+    managers: ["Managers", "General"],
+    drivers: ["General", "Drivers"],
+    bank_tellers_drivers: ["Bank Tellers", "Drivers"],
+    students_drivers: ["Students", "Drivers"],
+    managers_drivers: ["Managers", "Drivers"]
+  };
+  const pname = (p) => PRETTY[p][0] + " \u00d7 " + PRETTY[p][1];
+  const drvLabel = (p) => PRETTY[p][1] === "Drivers" ? "Drivers" : "General";
+  const ACRONYMS = { Tncs: "TNCs" };
+  const sname = (s) => s.split("-")
+    .map((x) => x.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()))
+    .map((x) => x.replace(/\b(\w+)\b/g, (w) => ACRONYMS[w] || w))
+    .join(" + ");
+  const FAMILY = (f) => f.replace(/_/g, " ");
+
+  // Where a spike sits relative to the injected event. "during" is an overlap test, not
+  // containment: the spike and the event window intersect at some point.
+  const POSITION = {
+    during:  ["during", "failure during the injected event"],
+    post:    ["post", "failure began within an hour after the event"],
+    outside: ["outside", "failure after the event window"]
+  };
+
+  // The simulation clock starts at 21:00 the day before, so midnight falls 3 h in - exactly
+  // where the plotted window begins. The x axis is drawn against that midnight, which puts
+  // the event (raw t = 79,200 s) at 19:00 and ends the axis at 24:00.
+  const DAY_START = 3 * 3600;                 // raw simulation seconds at 00:00
+  const AXIS_END = DAY_START + 24 * 3600;     // raw simulation seconds at 24:00
+  const clock = (raw) => {
+    const h = (raw - DAY_START) / 3600;
+    const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    return (mm === 60 ? hh + 1 : hh).toString().padStart(2, "0") + ":"
+         + (mm === 60 ? 0 : mm).toString().padStart(2, "0");
+  };
+
+  // The threshold set the verdicts rest on, and the per-run values derived from it.
+  let SHOW_PAPER = false;
+  const TH = () => M.threshold;
+  const blOf = (c) => (c && c.b) || {};
+  const blOfInfo = (info) => (info && info.b) || {};
+
+  const cellOf = new Map();
+  D.cells.forEach((c) => cellOf.set(c.scenario + "|" + c.personality, c));
+
+  /* ---------- prevention strategies ----------
+     Each strategy is a second grid over the same events and personalities, holding the
+     runs executed with that strategy active. STRAT is the grid currently on screen: null is
+     the runs without prevention, which is what every other view still describes. */
+  const PREV = D.prevention || {};
+  const STRATS = Object.keys(PREV);
+  let STRAT = null;
+  const prevCellOf = (k, s, p) => (PREV[k] ? PREV[k].cells[s + "|" + p] : null) || null;
+  // green: it was passing already; blue: the strategy removed the failure; red: it still fails
+  const OUTCOME = {
+    "still passes": { cls: "pass", tag: "\u2713 PASS", note: "passed without prevention too" },
+    "prevented":    { cls: "prevented", tag: "\u25c6 PREVENTED", note: "fail otherwise" },
+    "still fails":  { cls: "fail", tag: "\u2715 FAIL", note: "fails with and without prevention" },
+    "new failure":  { cls: "fail", tag: "\u2715 FAIL", note: "passed without prevention" }
+  };
+  const outcomeOf = (c) => OUTCOME[c && c.outcome] ||
+        { cls: (c && c.failure) ? "fail" : "pass", tag: (c && c.failure) ? "\u2715 FAIL" : "\u2713 PASS", note: "" };
+
+  /* A prevention strategy is a grid of its own: the cells it was run on, in the same shape
+     the rest of the page expects, plus the event and personality aggregates recomputed
+     over those cells alone. Cells the strategy has not been run on are simply absent, so
+     every view shows them as not run instead of borrowing a verdict from another grid. */
+  function prevGrid(k) {
+    const cells = new Map();
+    Object.keys(PREV[k].cells).forEach((key) => {
+      const r = PREV[k].cells[key];
+      const spike = r.spike_start == null ? null : {
+        start: r.spike_start, end: r.spike_end, dur: r.spike_duration_min,
+        peak: r.spike_peak, mean: r.spike_mean, pos: r.position,
+        ns: r.d_not_served, ca: r.d_cancel, de: r.d_demand,
+        share_ns: r.share_not_served, driver: r.dominant_driver,
+        nsPre: r.not_served_pre, nsIn: r.not_served_spike,
+        caPre: r.cancel_pre, caIn: r.cancel_spike
+      };
+      const affected = (r.affected || []).map((m) => ({
+        m: m.metric, f: "", dev: m.dev_vs_own, ref: m.dev_vs_reference,
+        lvl: m.spike_level, base: m.own_baseline_level }));
+      const b = { failure: r.failure, failure_timestamp: r.failure_timestamp,
+                  n_spikes: r.n_spikes, spike_minutes: r.spike_minutes,
+                  spike_minutes_in_event: r.spike_minutes_in_event,
+                  d_not_served: r.d_not_served, d_cancel: r.d_cancel,
+                  share_not_served: r.share_not_served,
+                  failSpike: spike, affected: affected };
+      cells.set(key, Object.assign({}, r, {
+        window: { nsPre: r.ns_pre, nsIn: r.ns_in, caPre: r.ca_pre, caIn: r.ca_in },
+        failSpike: spike, affected: affected, b: b, prevention: k
+      }));
+    });
+
+    const agg = (keys, pick) => {
+      const list = keys.map((x) => cells.get(pick(x))).filter(Boolean);
+      const nums = (f) => list.map((c) => c[f]).filter((x) => x != null);
+      const mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+      const med = (a) => { const l = a.slice().sort((x, y) => x - y);
+                           return l.length ? l[Math.floor((l.length - 1) / 2)] : null; };
+      const failed = list.filter((c) => c.failure === true);
+      const bb = { nFail: failed.length, n: list.length,
+                   spikeMin: mean(nums("spike_minutes")) };
+      return { list: list, failed: failed, n: list.length, nFail: failed.length,
+               meanIndex: mean(nums("fr_mean_event")),
+               meanIndexRange: [Math.min.apply(null, nums("fr_mean_event").concat([Infinity])),
+                                Math.max.apply(null, nums("fr_mean_event").concat([-Infinity]))],
+               peak: Math.max.apply(null, nums("fr_peak").concat([-Infinity])),
+               spikeMin: mean(nums("spike_minutes")),
+               medianFailTs: med(failed.map((c) => c.failure_timestamp).filter((x) => x != null)),
+               b: bb };
+    };
+
+    const scenarios = {}, personalities = {};
+    SC.forEach((x) => {
+      const a = agg(PE, (p) => x + "|" + p);
+      scenarios[x] = Object.assign({}, D.scenarios[x], a, {
+        failedBy: a.failed.map((c) => c.personality),
+        topMetrics: [], families: [], traits: [], additivity: null,
+        window: (D.scenarios[x] || {}).window });
+    });
+    PE.forEach((x) => {
+      const a = agg(SC, (sx) => sx + "|" + x);
+      personalities[x] = Object.assign({}, D.personalities[x], a, {
+        failedIn: a.failed.map((c) => c.scenario),
+        topMetrics: [], families: [], traits: [], conditions: [], additivity: null });
+    });
+    return { cells: cells, scenarios: scenarios, personalities: personalities };
+  }
+
+  const PREV_GRID = {};
+  STRATS.forEach((k) => { PREV_GRID[k] = prevGrid(k); });
+  const BASE_GRID = { cells: cellOf, scenarios: D.scenarios, personalities: D.personalities };
+  // Every view reads the grid through these, so selecting a strategy switches the whole page
+  const G = () => (STRAT && PREV_GRID[STRAT]) || BASE_GRID;
+  const gridCell = (key) => G().cells.get(key);
+  const isRun = (s, p) => G().cells.has(s + "|" + p);
+
+  /* ================= routing ================= */
+  // The selected prevention strategy travels in the hash, so a reload or a shared link
+  // lands on the same grid the page was showing.
+  const stripK = (h) => { const i = h.indexOf("?k="); return i >= 0 ? h.slice(0, i) : h; };
+  const curPath = () => stripK(decodeURIComponent(location.hash.replace(/^#/, ""))) || "/";
+  const go = (h) => { location.hash = h + (STRAT ? "?k=" + STRAT : ""); };
+  function route() {
+    let h = decodeURIComponent(location.hash.replace(/^#/, ""));
+    const i = h.indexOf("?k=");
+    if (i >= 0) {
+      const k = h.slice(i + 3);
+      STRAT = PREV[k] ? k : null;
+      h = h.slice(0, i);
+    }
+    const p = h.split("/").filter(Boolean);
+    if (p[0] === "x" && PREV[p[1]]) STRAT = p[1];
+    if (p[0] === "d" && cellOf.has(p[1] + "|" + p[2])) return { v: "cell", s: p[1], p: p[2] };
+    if (p[0] === "x" && prevCellOf(p[1], p[2], p[3])) return { v: "prevcell", k: p[1], s: p[2], p: p[3] };
+    if (p[0] === "s" && D.scenarios[p[1]]) return { v: "scenario", s: p[1] };
+    if (p[0] === "p" && D.personalities[p[1]]) return { v: "personality", p: p[1] };
+    if (p[0] === "patterns") return { v: "patterns" };
+    return { v: "home" };
+  }
+
+  function crumbs(r) {
+    const c = $("crumbs");
+    c.innerHTML = "";
+    const home = el("button", null, "All results");
+    home.type = "button";
+    home.addEventListener("click", () => go("/"));
+    if (r.v === "home") { c.append(el("span", "here", "All results")); return; }
+    c.append(home);
+    const sep = () => el("span", "sep", "\u203a");
+    if (r.v === "scenario") add(c, sep(), el("span", "here", "Event \u00b7 " + sname(r.s)));
+    if (r.v === "personality") add(c, sep(), el("span", "here", "Personality \u00b7 " + pname(r.p)));
+    if (r.v === "patterns") add(c, sep(), el("span", "here", "Patterns"));
+    if (r.v === "prevcell") {
+      const hb = el("button", null, PREV[r.k].label); hb.type = "button";
+      hb.addEventListener("click", () => { STRAT = r.k; go("/"); });
+      add(c, sep(), hb, sep(), el("span", "here", sname(r.s) + " \u00b7 " + pname(r.p)));
+    }
+    if (r.v === "cell") {
+      const sb = el("button", null, sname(r.s)); sb.type = "button";
+      sb.addEventListener("click", () => go("/s/" + r.s));
+      const pb = el("button", null, pname(r.p)); pb.type = "button";
+      pb.addEventListener("click", () => go("/p/" + r.p));
+      add(c, sep(), sb, sep(), pb, sep(), el("span", "here", "Dataset"));
+    }
+  }
+
+  /* ================= shared pieces ================= */
+  function panel(title, sub, right) {
+    const s = el("section", "panel");
+    const h = el("div", "panel-head");
+    const l = el("div");
+    add(l, el("h2", null, title), sub ? el("p", null, sub) : null);
+    add(h, l, right || null);
+    const b = el("div", "panel-body");
+    add(s, h, b);
+    return { panel: s, body: b };
+  }
+
+  function figs(items) {
+    const f = el("div", "figs");
+    items.forEach(([v, k]) => add(f, add(el("div", "fig"), el("div", "v", String(v)), el("div", "k", k))));
+    return f;
+  }
+
+  function signedRows(parts, totalRow) {
+    const max = Math.max(...parts.map((x) => Math.abs(x[1] || 0)), Math.abs(totalRow ? totalRow[1] || 0 : 0)) || 1;
+    const rows = el("div", "rows");
+    const mk = (lab, v, cls) => {
+      const r = el("div", "row-i" + (cls ? " " + cls : ""));
+      const t = el("div", "track");
+      const b = el("div", "bar");
+      const frac = Math.min(1, Math.abs(v || 0) / max) * 50;
+      if ((v || 0) >= 0) { b.style.left = "50%"; b.style.width = frac + "%"; b.style.background = "var(--d-pos-2)"; }
+      else { b.style.right = "50%"; b.style.width = frac + "%"; b.style.background = "var(--d-neg-2)"; }
+      t.append(b);
+      add(r, el("div", "lab", lab), t, el("div", "v", sgn(v, 3)));
+      return r;
+    };
+    parts.forEach(([l, v]) => rows.append(mk(l, v)));
+    if (totalRow) rows.append(mk(totalRow[0], totalRow[1], "total"));
+    return rows;
+  }
+
+  // Hover text for a robust-z value: what moved, by how much, against which reference.
+  function zTip(metric, z, against) {
+    const dir = z >= 0 ? "up" : "down";
+    return metric + " moved " + num(Math.abs(z), 1) + "\u03c3 (robust standard deviations) " + dir + " " + against + ".";
+  }
+  // Hover text for a trait: a metric the event (or personality) moves the same way everywhere.
+  const BY_Z = (z) => z == null ? "" : ", by " + num(Math.abs(z), 1) + "\u03c3 (robust standard deviations) on average";
+  const TRAIT_SCEN = (m, z, d) => m + " is a trait of this event: the event moves it " + d
+    + " from its normal-run level for every one of the eight personalities" + BY_Z(z) + ".";
+  const TRAIT_PERS = (m, z, d) => m + " is a trait of this personality: it moves " + d
+    + " from the reference personality in every one of the 15 events" + BY_Z(z) + ".";
+  const withTip = (node, tip) => { if (tip) { node.dataset.tip = tip; node.classList.add("tip"); } return node; };
+
+  // One floating tooltip for every .tip element; shown at once on hover, unlike the native title.
+  const tipBox = el("div"); tipBox.id = "tooltip"; document.body.append(tipBox);
+  function placeTip(target) {
+    const r = target.getBoundingClientRect();
+    tipBox.style.left = "0px"; tipBox.style.top = "0px";
+    const w = tipBox.offsetWidth, h = tipBox.offsetHeight;
+    let x = r.left + r.width / 2 - w / 2, y = r.top - h - 8;
+    x = Math.max(8, Math.min(x, window.innerWidth - w - 8));
+    if (y < 8) y = r.bottom + 8;
+    tipBox.style.left = x + "px"; tipBox.style.top = y + "px";
+  }
+  document.addEventListener("mouseover", (e) => {
+    const t = e.target.closest(".tip");
+    if (!t) return;
+    tipBox.textContent = t.dataset.tip; tipBox.classList.add("on"); placeTip(t);
+  });
+  document.addEventListener("mouseout", (e) => {
+    const t = e.target.closest(".tip");
+    if (t && !(e.relatedTarget && t.contains(e.relatedTarget))) tipBox.classList.remove("on");
+  });
+  addEventListener("scroll", () => tipBox.classList.remove("on"), true);
+
+  function magRows(items, unit, tipOf) {
+    const max = Math.max(...items.map((i) => Math.abs(i[1]))) || 1;
+    const w = el("div", "rows");
+    items.forEach(([name, v]) => {
+      const r = el("div", "mrow");
+      const lt = el("div", "lt");
+      const mt = el("div", "mt");
+      const i = el("i");
+      i.style.width = (Math.abs(v) / max * 100) + "%";
+      mt.append(i);
+      add(lt, el("span", "nm", name), mt);
+      add(r, lt, withTip(el("span", "v", num(v, 2) + (unit || "")), tipOf ? tipOf(name, v) : null));
+      w.append(r);
+    });
+    return w;
+  }
+
+  function decompBlock(c) {
+    // Nothing spiked, so there is no rise to take apart: the caller drops the block entirely
+    // rather than showing an empty one (add() skips a null child).
+    if (blOf(c).d_not_served == null) return null;
+    const b = el("div", "block");
+    add(b, el("h3", null, "What the rise is made of"));
+    const riseTwo = (blOf(c).d_not_served || 0) + (blOf(c).d_cancel || 0);
+    add(b, el("p", "sub", "How much of the rise from the pre-spike hour each failure metric is responsible for, "
+      + "split by <b>Shapley</b> value. They account for a rise of " + sgn(riseTwo, 3) + " in the index."));
+    const comps = [["rides_not_served", blOf(c).d_not_served, "var(--cat-1)"],
+                   ["passengers_cancel", blOf(c).d_cancel, "var(--cat-2)"]];
+    const tot = comps.reduce((a, x) => a + Math.abs(x[1]), 0) || 1;
+    const st = el("div", "stack");
+    comps.forEach(([, v, col]) => { const s = el("span"); s.style.width = (Math.abs(v) / tot * 100) + "%"; s.style.background = col; st.append(s); });
+    b.append(st);
+    comps.forEach(([n, v, col]) => {
+      const r = el("div", "sl");
+      const i = el("i"); i.style.background = col;
+      add(r, i, el("span", "n mono", n), el("span", "v", sgn(v, 3)), el("span", "p", (Math.abs(v) / tot * 100).toFixed(0) + "%"));
+      b.append(r);
+    });
+    return b;
+  }
+
+  // The proportion of failures between the two metrics, at their actual levels. Used for the
+  // spike a failure sits in, and over the event window for runs that never failed.
+  function splitBlock(title, subText, lv) {
+    const b = el("div", "block");
+    add(b, el("h3", null, title), el("p", "sub", subText));
+    if (!lv || lv.nsIn == null) {
+      add(b, el("p", "none", "no levels recorded for this run"));
+      return b;
+    }
+    const comps = [["rides_not_served", lv.nsIn, "var(--cat-1)"],
+                   ["passengers_cancel", lv.caIn, "var(--cat-2)"]];
+    const tot = comps.reduce((a, x) => a + Math.abs(x[1] || 0), 0) || 1;
+    const st = el("div", "stack");
+    comps.forEach(([, lvl, col]) => {
+      const sp = el("span");
+      sp.style.width = (Math.abs(lvl || 0) / tot * 100) + "%";
+      sp.style.background = col;
+      st.append(sp);
+    });
+    b.append(st);
+    comps.forEach(([n, lvl, col]) => {
+      const r = el("div", "sl");
+      const i = el("i"); i.style.background = col;
+      add(r, i, el("span", "n mono", n), el("span", "v", num(lvl, 3)),
+             el("span", "p", (Math.abs(lvl || 0) / tot * 100).toFixed(0) + "%"));
+      b.append(r);
+    });
+    return b;
+  }
+
+  // The reference run is what every other cell is measured against, so its own three parts are
+  // zero by construction and the block says nothing. The caller drops it (add() skips null).
+  const isReferenceRun = (c) => c.personality === M.reference_config[0]
+                             && c.scenario === M.reference_config[1];
+
+  function attributionBlock(c) {
+    if (isReferenceRun(c)) return null;
+    const b = el("div", "block");
+    add(b, el("h3", null, "Event, personality, or the pairing"),
+           el("p", "sub", "Event-window index against the no-personality normal run. The three parts sum to the total exactly."));
+    b.append(signedRows([
+      ["Event", c.fr_scenario_effect],
+      ["Personality", c.fr_personality_effect],
+      ["Interaction", c.fr_interaction_effect]
+    ], ["Total", c.fr_total_effect]));
+    const lg = el("div", "legend");
+    add(lg, swatch("var(--d-pos-2)", "raises the index"), swatch("var(--d-neg-2)", "lowers it"));
+    b.append(lg);
+    return b;
+  }
+
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const svg = (tag, attrs) => {
+    const n = document.createElementNS(SVGNS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  };
+
+  // One line chart, shared by the run view (a single trace) and the event view (eight).
+  // Everything is drawn to one pair of scales; colours come from the theme tokens.
+  function indexChart(defs, opts) {
+    opts = opts || {};
+    const W = 1000, H = opts.height || 240;
+    const L = 56, R = 18, T = 14, B = 34;
+    const thr = TH().p99_h;
+
+    // A failed run is drawn only up to the moment it was declared failed - past that point
+    // the simulation is no longer describing a system that is still meeting its contract.
+    const live = defs.filter((d) => d.trace && d.trace.v && d.trace.v.length).map((d) => {
+      if (d.cutAt == null) return d;
+      const keep = Math.floor((d.cutAt - d.trace.t0) / d.trace.dt) + 1;
+      if (keep >= d.trace.v.length || keep < 2) return d;
+      return Object.assign({}, d, { trace: Object.assign({}, d.trace, { v: d.trace.v.slice(0, keep) }) });
+    });
+    const wrap = el("div");
+    if (!live.length) {
+      add(wrap, el("p", "none", "no index trace available for this run"));
+      return wrap;
+    }
+
+    const vMax = 1.0;                      // fixed: the index is a share of requests
+    let tMin = Infinity, tMax = -Infinity;
+    live.forEach((d) => {
+      const n = d.trace.v.length;
+      tMin = Math.min(tMin, d.trace.t0);
+      tMax = Math.max(tMax, d.trace.t0 + (n - 1) * d.trace.dt);
+    });
+    if (opts.xMin != null) tMin = opts.xMin;
+    if (opts.xMax != null) tMax = opts.xMax;
+    const x = (t) => L + (t - tMin) / (tMax - tMin) * (W - L - R);
+    const y = (v) => T + (1 - Math.min(v, vMax) / vMax) * (H - T - B);
+
+    const g = svg("svg", { viewBox: `0 0 ${W} ${H}`, class: "chart",
+                           preserveAspectRatio: "none", role: "img" });
+
+    // event window, then the injection instant
+    if (opts.event) {
+      g.append(svg("rect", { x: x(opts.event[0]), y: T, width: Math.max(1, x(opts.event[1]) - x(opts.event[0])),
+                             height: H - T - B, fill: "var(--panel-3)" }));
+      g.append(svg("line", { x1: x(opts.event[0]), x2: x(opts.event[0]), y1: T, y2: H - B,
+                             stroke: "var(--ink-3)", "stroke-width": 1, "stroke-dasharray": "3 3" }));
+      const evLab = svg("text", { x: x(opts.event[0]) + 5, y: T + 13, class: "ax", fill: "var(--ink-3)" });
+      evLab.textContent = "event " + clock(opts.event[0]);
+      g.append(evLab);
+    }
+
+    // y grid at 0, threshold and the top of the scale
+    [0, thr, vMax].forEach((v, i) => {
+      g.append(svg("line", { x1: L, x2: W - R, y1: y(v), y2: y(v),
+                             stroke: i === 1 ? "var(--critical)" : "var(--rule)",
+                             "stroke-width": 1, "stroke-dasharray": i === 1 ? "5 4" : "0" }));
+      const lab = svg("text", { x: L - 8, y: y(v) + 5, class: "ax", "text-anchor": "end",
+                                fill: i === 1 ? "var(--critical)" : "var(--ink-3)" });
+      lab.textContent = v.toFixed(2);
+      g.append(lab);
+    });
+    const thrLab = svg("text", { x: W - R, y: y(thr) - 7, class: "ax", "text-anchor": "end", fill: "var(--critical)" });
+    thrLab.textContent = "hardiness threshold";
+    g.append(thrLab);
+
+    // x ticks on whole clock hours since midnight
+    const spanH = (tMax - tMin) / 3600;
+    const stepH = spanH > 16 ? 4 : spanH > 8 ? 2 : 1;
+    const firstH = Math.ceil((tMin - DAY_START) / 3600 / stepH) * stepH;
+    for (let h = firstH; DAY_START + h * 3600 <= tMax + 1; h += stepH) {
+      const tt = DAY_START + h * 3600;
+      g.append(svg("line", { x1: x(tt), x2: x(tt), y1: H - B, y2: H - B + 4, stroke: "var(--rule-2)", "stroke-width": 1 }));
+      const lab = svg("text", { x: x(tt), y: H - B + 20, class: "ax", "text-anchor": "middle" });
+      lab.textContent = h.toString().padStart(2, "0") + ":00";
+      g.append(lab);
+    }
+    g.append(svg("line", { x1: L, x2: W - R, y1: H - B, y2: H - B, stroke: "var(--rule-2)", "stroke-width": 1 }));
+
+    // the traces; the part above the threshold is drawn again in the alert colour
+    live.forEach((d) => {
+      const tr = d.trace;
+      const pt = (i) => [x(tr.t0 + i * tr.dt), y(tr.v[i] / 1000)];
+      let path = "";
+      for (let i = 0; i < tr.v.length; i++) {
+        const [px, py] = pt(i);
+        path += (i ? "L" : "M") + px.toFixed(1) + " " + py.toFixed(1);
+      }
+      g.append(svg("path", { d: path, fill: "none", stroke: d.color,
+                             "stroke-width": d.strong ? 2 : 1.4, "stroke-linejoin": "round",
+                             "stroke-dasharray": d.dash ? "5 4" : "0",
+                             opacity: d.dim ? 0.55 : 1 }));
+      if (d.strong) {
+        let hot = "", open = false;
+        for (let i = 0; i < tr.v.length; i++) {
+          if (tr.v[i] / 1000 > thr) {
+            const [px, py] = pt(i);
+            hot += (open ? "L" : "M") + px.toFixed(1) + " " + py.toFixed(1);
+            open = true;
+          } else { open = false; }
+        }
+        if (hot) g.append(svg("path", { d: hot, fill: "none", stroke: "var(--critical)", "stroke-width": 2.4 }));
+      }
+    });
+
+    // where the failure was declared
+    if (opts.failTs) {
+      g.append(svg("line", { x1: x(opts.failTs), x2: x(opts.failTs), y1: T, y2: H - B,
+                             stroke: "var(--critical)", "stroke-width": 1.6 }));
+      const lab = svg("text", { x: x(opts.failTs) + 5, y: H - B - 6, class: "ax", fill: "var(--critical)" });
+      lab.textContent = "failure " + clock(opts.failTs);
+      g.append(lab);
+    }
+
+    // crosshair readout, single-trace only
+    const readout = el("p", "readout", opts.readoutHint || "");
+    if (live.length === 1) {
+      const tr = live[0].trace;
+      const cross = svg("line", { x1: 0, x2: 0, y1: T, y2: H - B, stroke: "var(--ink-3)",
+                                  "stroke-width": 1, opacity: 0 });
+      const dot = svg("circle", { r: 4, fill: live[0].color, stroke: "var(--panel)", "stroke-width": 2, opacity: 0 });
+      g.append(cross); g.append(dot);
+      const hit = svg("rect", { x: L, y: T, width: W - L - R, height: H - T - B, fill: "transparent" });
+      hit.addEventListener("mousemove", (ev) => {
+        const box = g.getBoundingClientRect();
+        const px = (ev.clientX - box.left) / box.width * W;
+        const at = tMin + (px - L) / (W - L - R) * (tMax - tMin);
+        const i = Math.round((at - tr.t0) / tr.dt);
+        if (i < 0 || i >= tr.v.length) {
+          cross.setAttribute("opacity", 0); dot.setAttribute("opacity", 0);
+          readout.textContent = "";
+          return;
+        }
+        const tt = tr.t0 + i * tr.dt, vv = tr.v[i] / 1000;
+        cross.setAttribute("x1", x(tt)); cross.setAttribute("x2", x(tt)); cross.setAttribute("opacity", 1);
+        dot.setAttribute("cx", x(tt)); dot.setAttribute("cy", y(vv)); dot.setAttribute("opacity", 1);
+        readout.textContent = clock(tt) + " (t = " + int(tt) + " s) \u00b7 index "
+          + vv.toFixed(3) + (vv > thr ? " \u2014 above hardiness threshold" : "");
+      });
+      hit.addEventListener("mouseleave", () => {
+        cross.setAttribute("opacity", 0); dot.setAttribute("opacity", 0);
+        readout.textContent = opts.readoutHint || "";
+      });
+      g.append(hit);
+    }
+
+    add(wrap, g, readout);
+    return wrap;
+  }
+
+  function swatch(color, label) {
+    const s = el("span", "sw");
+    const i = el("i"); i.style.background = color;
+    add(s, i, el("span", null, label));
+    return s;
+  }
+
+  function parseList(str) {
+    if (!str) return [];
+    return String(str).split(";").map((s) => s.trim()).filter(Boolean).map((s) => {
+      const m = s.match(/^(.*)\s\(([+-][\d.]+)\)$/);
+      return m ? { m: m[1], z: parseFloat(m[2]) } : { m: s.replace(/\s[\^v]$/, ""), z: null, d: s.endsWith("^") ? "up" : "down" };
+    });
+  }
+
+  function causeList(title, sub, items, suffix, against) {
+    // nothing to rank here, so the block is dropped rather than left with a heading and a note
+    if (!items.length) return null;
+    const b = el("div", "cause");
+    add(b, el("h3", null, title), el("p", "sub", sub));
+    const ol = el("ol");
+    items.forEach((x) => {
+      const li = el("li");
+      add(li, el("span", "m", x.m),
+             withTip(el("span", "z " + (x.z == null ? (x.d === "up" ? "up" : "down") : (x.z >= 0 ? "up" : "down")),
+                x.z == null ? (x.d === "up" ? "\u2191" : "\u2193") : sgn(x.z, 1) + (suffix || "")),
+                !against ? null : (typeof against === "function" ? against(x) : (x.z == null ? null : zTip(x.m, x.z, against)))));
+      ol.append(li);
+    });
+    b.append(ol);
+    return b;
+  }
+
+  function metricTable(rows, cols) {
+    const t = el("table", "data");
+    const th = el("thead"), hr = el("tr");
+    cols.forEach((c) => { const h = el("th", null, c[0]); if (c[2]) h.style.textAlign = "right"; hr.append(h); });
+    th.append(hr); t.append(th);
+    const tb = el("tbody");
+    rows.forEach((r) => {
+      const tr = el("tr");
+      cols.forEach((c) => tr.append(c[1](r)));
+      tb.append(tr);
+    });
+    t.append(tb);
+    return t;
+  }
+
+  function miniCells(list, kind) {
+    const w = el("div", "minicells");
+    list.forEach((x) => {
+      const b = el("button");
+      b.type = "button";
+      if (!isRun(x.s, x.p)) {                       // not run with the selected strategy
+        b.classList.add("notrun");
+        b.disabled = true;
+        add(b, el("span", "b", "\u2013"), el("span", null, x.label + " \u00b7 not run"));
+        w.append(b);
+        return;
+      }
+      if (x.fail) b.classList.add("fail");
+      add(b, el("span", "b", x.fail ? "\u2715" : "\u2713"), el("span", null, x.label));
+      b.addEventListener("click", () => go(STRAT ? "/x/" + STRAT + "/" + x.s + "/" + x.p
+                                                 : "/d/" + x.s + "/" + x.p));
+      w.append(b);
+    });
+    return w;
+  }
+
+  // Shown at the foot of every view: the same definitions wherever you are.
+  function glossaryPanel() {
+  const G = panel("How to read the numbers");
+  const g = el("div", "glossary");
+  const term = (h, body, eg) => {
+    const d = el("div", "gterm");
+    add(d, el("h3", null, h));
+    const pEl = el("p", null, body);
+    add(d, pEl);
+    if (eg) add(d, el("p", "eg", eg));
+    return d;
+  };
+  add(g,
+    term("The failed_requests index",
+      "The share of ride requests that end badly (expired unserved or cancelled) - scaled by how busy "
+      + "the system is. A run is a HCS failure when hardiness, consistency, and resilience simultaneously"
+      + " leave their normal range.",
+      "Thresholds are the 99th percentiles of the " + TH().label + " run: "
+      + "hardiness " + TH().p99_h.toFixed(4) + ", consistency " + TH().p99_c.toFixed(4)
+      + ", resilience " + TH().p99_r + " timestamps."),
+    term("Robust z (\u03c3)",
+      "Metrics live on wildly different scales (drivers_idle sits near 7,000, passengers_cancel near 0.01) "
+      + "so a raw difference cannot be compared across them. Each metric is divided by its own typical "
+      + "spread in the reference run, giving every effect the same unit: how many times the metric's "
+      + "ordinary variation it moved. The spread is 1.4826 \u00d7 the median absolute deviation.",
+      "+57\u03c3 on passengers_cancel means it moved 57 times its normal minute-to-minute behavior."),
+    term("Shapley split",
+      "When two things move together, the change often is imputed to which you count first. "
+      + "A Shapley value removes that arbitrariness: it gives each factor its average extra "
+      + "contribution across every possible order in which the factors could have moved."));
+  G.body.append(g);
+    return G.panel;
+  }
+
+  /* ================= HOME ================= */
+  function viewHome() {
+    const v = $("view");
+    v.innerHTML = "";
+    const head = el("div");
+    head.style.cssText = "display:flex;flex-direction:column;gap:14px";
+    add(head, el("p", "lede",
+      "Every event crossed with every agent personality. Select any run to see what it did and, where it failed, what broke."));
+
+    const f = el("div", "formula");
+    f.innerHTML = "<b>Failed_requests(t)</b> = ( <b>rides_not_served</b> + <b>passengers_cancel</b> ) / <b>passengers_new</b> " +
+      "\u00d7 min(1, a\u00b7ln(passengers_new + b) + c) &nbsp;&nbsp; (a = " + M.thresholds.a.toFixed(6) +
+      ", b = 0.1, c = " + M.thresholds.c.toFixed(6) + ")";
+    head.append(f);
+
+    const runCount = STRAT ? G().cells.size + " of " + (SC.length * PE.length)
+                           : "120 (15\u00d78)";
+    const prov = el("dl", "provenance");
+    [["Runs", runCount],
+     ["Threshold baseline", TH().label],
+     ["Hardiness threshold (p99)", TH().p99_h.toFixed(4)],
+     ["Consistency threshold (p99)", TH().p99_c.toFixed(4)],
+     ["Resilience threshold (p99)", TH().p99_r + " timestamps"],
+     ["Event injection", "t = 79,200 s (7pm)"]
+    ].forEach(([k, val]) => {
+      const d = el("div");
+      add(d, el("dt", null, k), el("dd", "mono", val));
+      prov.append(d);
+    });
+    head.append(prov);
+    v.append(head);
+
+    const stats = el("section", "stats");
+    const gc = Array.from(G().cells.values());
+    const nFail = STRAT ? gc.filter((c) => c.failure === true).length : TH().failures;
+    const nRuns = STRAT ? gc.length : TH().runs;
+    const nSpikes = STRAT ? gc.reduce((a, c) => a + (c.n_spikes || 0), 0) : TH().spikes;
+    const prevented = STRAT ? gc.filter((c) => c.outcome === "prevented").length : null;
+    [[nFail, "runs that fail"], [nRuns - nFail, "runs that pass"],
+     [(nFail / (nRuns || 1) * 100).toFixed(0) + "%", "failure rate"],
+     STRAT ? [prevented, "failures the strategy removed"] : [nSpikes, "spike episodes"]
+    ].forEach(([val, k]) => {
+      const s = el("div", "stat");
+      add(s, el("div", "v", String(val)), el("div", "k", k));
+      stats.append(s);
+    });
+    v.append(stats);
+
+    const controls = el("div");
+    controls.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;align-items:center";
+    add(controls, strategyToggle(), STRAT ? null : paperToggle());
+    const P = panel(STRAT ? "HCS failure with " + PREV[STRAT].label.toLowerCase()
+                          : "HCS failure by event and personality",
+      STRAT
+        ? "The same grid, with the <b>" + PREV[STRAT].label.toLowerCase() + "</b> strategy triggered five minutes after the personality was injected. "
+          + "Blue: the strategy removed the failure. Red: it still fails. Grey: not run with this strategy. "
+          + "Every other view follows this selection, so events, personalities and patterns describe these runs alone."
+        : "Rows are events, columns are the driver \u00d7 passenger personality pair. A cell shows the verdict and, when it fails, the simulation time of the failure. Events, personalities, and cells are all selectable.",
+      controls);
+    const scroll = el("div", "tscroll");
+    const t = el("table", "results");
+
+    const thead = el("thead"), hr = el("tr");
+    const corner = el("th", "corner");
+    add(corner, el("span", "key ps", "Passenger personality"), el("span", "key dr", "Driver personality"));
+    hr.append(corner);
+    PE.forEach((p) => {
+      const th = el("th", "pers"); th.scope = "col";
+      const b = el("button"); b.type = "button";
+      add(b, el("span", "ps", PRETTY[p][0]), el("span", "dr", drvLabel(p)));
+      b.addEventListener("click", () => go("/p/" + p));
+      th.append(b); hr.append(th);
+    });
+    if (SHOW_PAPER) {
+      const th = el("th", "paper");
+      th.scope = "col";
+      add(th, el("span", null, "Puccinelli et al."));
+      hr.append(th);
+    }
+    thead.append(hr); t.append(thead);
+
+    const tb = el("tbody");
+    const groups = [["No event", SC.filter((s) => s === "normal")],
+                    ["Single event", SC.filter((s) => s !== "normal" && !M.compound.includes(s))],
+                    ["Compound event", M.compound]];
+    groups.forEach(([name, list]) => {
+      if (!list.length) return;
+      const gr = el("tr", "group");
+      const gd = el("td", null, name); gd.colSpan = PE.length + (SHOW_PAPER ? 2 : 1);
+      gr.append(gd); tb.append(gr);
+
+      // The prior study reports Greedy drivers and Budget passengers as events; here they are
+      // personalities, so they get a row of their own with only the prior verdict filled in.
+      const extra = SHOW_PAPER
+        ? ((M.paperOnly || {})[name === "Single event" ? "single"
+                               : name === "Compound event" ? "compound" : ""] || [])
+        : [];
+
+      list.forEach((s) => {
+        const tr = el("tr");
+        const th = el("th", "scen"); th.scope = "row";
+        const sb = el("button"); sb.type = "button";
+        const info = G().scenarios[s];
+        add(sb, el("span", "nm", sname(s)),
+               el("span", "mech", info.mechanism === "none" ? "normal baseline run" : info.mechanism));
+        sb.addEventListener("click", () => go("/s/" + s));
+        th.append(sb); tr.append(th);
+        PE.forEach((p) => {
+          const c = gridCell(s + "|" + p);
+          const td = el("td", "rc");
+          const b = el("button", "verdict"); b.type = "button";
+          if (STRAT) {
+            const pc = prevCellOf(STRAT, s, p);
+            if (!pc) {
+              b.classList.add("notrun");
+              add(b, el("span", "g", "not run"), el("span", "ts", "\u2014"));
+              b.disabled = true;
+              b.setAttribute("aria-label", sname(s) + ", " + pname(p) + ": not run with this strategy");
+            } else {
+              const o = outcomeOf(pc);
+              b.classList.add(o.cls);
+              add(b, el("span", "g", o.tag),
+                     el("span", "ts", pc.failure && pc.failure_timestamp != null
+                        ? int(pc.failure_timestamp) + " s" : o.note));
+              b.setAttribute("aria-label", sname(s) + ", " + pname(p) + ": " + pc.outcome);
+              b.addEventListener("click", () => go("/x/" + STRAT + "/" + s + "/" + p));
+            }
+          } else if (c) {
+            const failed = blOf(c).failure === true;
+            b.classList.add(failed ? "fail" : "pass");
+            add(b, el("span", "g", failed ? "\u2715 FAIL" : "\u2713 PASS"),
+                   el("span", "ts", failed && blOf(c).failure_timestamp != null ? int(blOf(c).failure_timestamp) + " s" : "\u2014"));
+            b.setAttribute("aria-label", sname(s) + ", " + pname(p) + ": " + (failed ? "failed at " + int(blOf(c).failure_timestamp) + " seconds" : "passed"));
+            b.addEventListener("click", () => go("/d/" + s + "/" + p));
+          }
+          td.append(b); tr.append(td);
+        });
+        if (SHOW_PAPER) {
+          const pv = M.paper ? M.paper[s] : null;
+          const td = el("td", "rc");
+          const cellEl = el("div", "paperv " + (pv ? (pv.failure ? "fail" : "pass") : "absent"),
+                            pv ? (pv.failure ? "\u2715 FAIL" : "\u2713 PASS") : "Not in Puccinelli et al.");
+          td.append(cellEl); tr.append(td);
+        }
+        tb.append(tr);
+      });
+
+      extra.forEach((s) => {
+        const pv = M.paper ? M.paper[s] : null;
+        const tr = el("tr");
+        const th = el("th", "scen"); th.scope = "row";
+        add(th, el("span", "nm", sname(s)));
+        tr.append(th);
+        const td = el("td", "rc");
+        const cellEl = el("div", "paperv " + (pv ? (pv.failure ? "fail" : "pass") : "absent"),
+                          pv ? (pv.failure ? "\u2715 FAIL" : "\u2713 PASS") : "Not in Puccinelli et al.");
+        PE.forEach(() => tr.append(el("td", "rc")));   // no OCEAN counterpart
+        td.append(cellEl); tr.append(td);
+        tb.append(tr);
+      });
+    });
+    t.append(tb);
+    scroll.append(t);
+    P.body.append(scroll);
+
+    v.append(P.panel);
+    const cta = el("div", "cta");
+    const cb = el("button", null, "Explore the patterns \u2192"); cb.type = "button";
+    cb.addEventListener("click", () => go("/patterns"));
+    add(cta, cb, el("span", "note", "Which events decide on their own, what each side of the market adds, and where compound events surprise."));
+    v.append(cta);
+
+    v.append(glossaryPanel());
+  }
+
+
+  /* ================= failure conditions ================= */
+  // "fails whenever <metric> is above/below <cut>": one row per condition, from section 12b.
+  const condPhrase = (c) => c.m + " " + (c.dir === "high" ? "above " : "below ") + num(c.cut, 2);
+  function conditionsTable(items, n) {
+    const sc = el("div", "tscroll");
+    sc.append(metricTable(items, [
+      ["Fails when", (r) => { const td = el("td", "ml"); td.append(document.createTextNode(r.m + " is " + r.dir)); return td; }],
+      ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+      ["Failing threshold", (r) => el("td", "n", (r.dir === "high" ? "> " : "< ") + num(r.cut, 2)), true],
+      ["Median value in failing / passing runs", (r) => el("td", "n muted", num(r.medF, 2) + " / " + num(r.medP, 2)), true],
+      ["Separation", (r) => withTip(el("td", "n", num(r.sep, 2)), "Probability that a failing run of this personality shows a " + (r.dir === "high" ? "higher" : "lower") + " " + r.m + " than a passing one."), true]
+    ]));
+    return sc;
+  }
+
+  /* ================= PATTERNS ================= */
+  // Regularities in the verdict grid, computed from the payload so they track every rebuild:
+  // which events decide the outcome on their own, what each side of the market adds,
+  // where a compound event fails although neither component does, and how timing splits.
+  // how the notebook's failure_mode categories are labelled on the patterns page
+  const MODE_LABEL = { "not-served dominated": "rides_not_served", "demand-driven": "passengers_cancel",
+                       "cancellation dominated": "passengers_cancel", "mixed": "mixed" };
+
+  function patternStats() {
+    // Under a prevention strategy the grid is only what that strategy was run on: events
+    // and personalities with no run are left out of every count below rather than being
+    // silently read as passing. Without a strategy these are the full lists.
+    const SC = STRAT ? M.scenarios.filter((x) => M.personalities.some((p) => isRun(x, p)))
+                     : M.scenarios;
+    const PE = STRAT ? M.personalities.filter((p) => SC.some((x) => isRun(x, p)))
+                     : M.personalities;
+    const verdict = (s, p) => blOf(gridCell(s + "|" + p)).failure === true;
+    const failTs = (s, p) => blOf(gridCell(s + "|" + p)).failure_timestamp;
+    const events = SC.filter((x) => x !== "normal");
+    const single = events.filter((x) => !M.compound.includes(x));
+    const compound = events.filter((x) => M.compound.includes(x));
+    const withDrivers = PE.filter((x) => PRETTY[x][1] === "Drivers");
+    const noDrivers = PE.filter((x) => PRETTY[x][1] !== "Drivers");
+    const nFailIn = (ss, ps) => ss.reduce((a, x) => a + ps.filter((y) => verdict(x, y)).length, 0);
+    const median = (arr) => { const l = arr.slice().sort((a, b) => a - b); return l.length ? l[Math.floor((l.length - 1) / 2)] : null; };
+
+    // event tiers
+    const always = events.filter((x) => G().scenarios[x].nFail === G().scenarios[x].n);
+    const never = events.filter((x) => G().scenarios[x].nFail === 0);
+    const depends = events.filter((x) => !always.includes(x) && !never.includes(x));
+
+    // driver side: same passenger type, general -> Drivers personality
+    const driverPairs = noDrivers.map((a) => [a, PE.find((b) => PRETTY[b][1] === "Drivers" && PRETTY[b][0] === PRETTY[a][0])]).filter((x) => x[1]);
+    const driverFlips = driverPairs.map(([a, b]) => ({ a, b,
+      broken: events.filter((x) => !verdict(x, a) && verdict(x, b)),
+      rescued: events.filter((x) => verdict(x, a) && !verdict(x, b)) }));
+    const brokenCount = {}; driverFlips.forEach((f) => f.broken.forEach((x) => { brokenCount[x] = (brokenCount[x] || 0) + 1; }));
+    const driverConsistent = Object.entries(brokenCount).filter(([, k]) => k >= Math.ceil(driverPairs.length * 0.75)).map(([x]) => x);
+
+    // passenger side: same driver setting, general passengers -> a passenger personality
+    const passengerTypes = [...new Set(PE.map((p) => PRETTY[p][0]))].filter((t) => t !== "General");
+    const passengerFlips = [];
+    [["General", "general drivers"], ["Drivers", "drivers with a personality"]].forEach(([drv, drvLabelTxt]) => {
+      const ref = PE.find((p) => PRETTY[p][0] === "General" && PRETTY[p][1] === drv);
+      passengerTypes.forEach((t) => {
+        const p = PE.find((q) => PRETTY[q][0] === t && PRETTY[q][1] === drv);
+        if (!ref || !p) return;
+        passengerFlips.push({ t, drv, drvLabelTxt, ref, p,
+          broken: events.filter((x) => !verdict(x, ref) && verdict(x, p)),
+          rescued: events.filter((x) => verdict(x, ref) && !verdict(x, p)) });
+      });
+    });
+    const refGen = PE.find((p) => PRETTY[p][0] === "General" && PRETTY[p][1] === "General");
+    const passOnly = noDrivers.filter((p) => p !== refGen);
+    // events where the reference personality survives but every passenger personality (general drivers) fails
+    const passengerFragile = events.filter((x) => !verdict(x, refGen) && passOnly.length && passOnly.every((p) => verdict(x, p)));
+    const byPassengerType = passengerTypes.concat(["General"]).map((t) => {
+      const ps = PE.filter((p) => PRETTY[p][0] === t);
+      return { t, fails: nFailIn(events, ps), n: events.length * ps.length };
+    });
+
+    // personalities ranked
+    const ranked = PE.map((p) => ({ p, fails: nFailIn(events, [p]) })).sort((a, b) => a.fails - b.fails);
+
+    // compounds against their parts
+    const emergent = [], masked = []; let additive = 0, total = 0;
+    compound.forEach((x) => {
+      const parts = G().scenarios[x].components;
+      if (!parts.every((c) => SC.includes(c))) return;   // its parts are not in this grid
+      PE.forEach((p) => {
+        const anyPart = parts.some((c) => verdict(c, p)); const whole = verdict(x, p); total++;
+        if (anyPart === whole) additive++; else if (whole) emergent.push([x, p]); else masked.push([x, p]);
+      });
+    });
+    const emergentBy = {}; emergent.forEach(([x]) => { emergentBy[x] = (emergentBy[x] || 0) + 1; });
+    const emergentWithDrivers = emergent.filter(([, p]) => PRETTY[p][1] === "Drivers").length;
+    // which component the masked runs fail on their own
+    const maskedOf = {}; masked.forEach(([x, p]) => G().scenarios[x].components.filter((c) => SC.includes(c) && verdict(c, p)).forEach((c) => { maskedOf[c] = (maskedOf[c] || 0) + 1; }));
+    const maskedComponents = Object.entries(maskedOf).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+    // single events, by side
+    const singleBySide = (ps) => single.map((x) => ({ s: x, n: ps.filter((p) => verdict(x, p)).length, of: ps.length })).filter((r) => r.n).sort((a, b) => b.n - a.n);
+    const singleGeneral = singleBySide(noDrivers), singleDrivers = singleBySide(withDrivers);
+    // failure mechanism by side
+    const modeBySide = {};
+    [["general drivers", noDrivers], ["Drivers personality", withDrivers]].forEach(([k, ps]) => {
+      const m = {}; let n = 0;
+      events.forEach((x) => ps.forEach((p) => { if (!verdict(x, p)) return; n++; const raw = gridCell(x + "|" + p).failure_mode; const lab = MODE_LABEL[raw] || raw; m[lab] = (m[lab] || 0) + 1; }));
+      modeBySide[k] = { n, m };
+    });
+    const emergentTop = Object.entries(emergentBy).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([x]) => x);
+    const maskedWithDrivers = masked.filter(([, p]) => PRETTY[p][1] === "Drivers").length;
+
+    // timing and failure mode
+    const timing = events.map((x) => {
+      const fails = PE.filter((p) => verdict(x, p));
+      const lags = fails.map((p) => failTs(x, p)).filter((t) => t != null).map((t) => (t - 79200) / 60);
+      const modes = {}; fails.forEach((p) => { const m = gridCell(x + "|" + p).failure_mode; const lab = MODE_LABEL[m] || m || "\u2013"; modes[lab] = (modes[lab] || 0) + 1; });
+      return { s: x, n: fails.length, med: median(lags), lo: Math.min(...lags), hi: Math.max(...lags),
+               mode: Object.entries(modes).sort((a, b) => b[1] - a[1]).map(([m, k]) => m + " (" + k + ")").join(", "), modes };
+    }).filter((r) => r.n).sort((a, b) => a.med - b.med);
+    const persMed = PE.map((p) => median(events.filter((x) => verdict(x, p)).map((x) => (failTs(x, p) - 79200) / 60))).filter((x) => x != null);
+    const modeTotals = {}; timing.forEach((r) => Object.entries(r.modes).forEach(([m, k]) => { modeTotals[m] = (modeTotals[m] || 0) + k; }));
+
+    return { SC, PE, verdict, events, single, compound, withDrivers, noDrivers, nFailIn, always, never, depends,
+             driverPairs, driverFlips, driverConsistent, passengerTypes, passengerFlips, passengerFragile, byPassengerType,
+             refGen, ranked, emergent, masked, additive, total, emergentTop, maskedWithDrivers, emergentWithDrivers, maskedComponents,
+             singleGeneral, singleDrivers, modeBySide, timing, persMed, modeTotals };
+  }
+
+  /* ================= patterns of one prevention strategy =================
+     A strategy is not described by the regularities of the verdict grid but by what it did
+     to the runs it was applied to: which failures it removed, which it left failing, and
+     which metrics it moved to get there. */
+  function viewPreventionPatterns(k) {
+    const v = $("view");
+    v.innerHTML = "";
+    const P = PREV[k], label = P.label, low = label.toLowerCase();
+    const cells = Object.keys(P.cells).map((key) => P.cells[key]);
+    const by = (o) => cells.filter((c) => c.outcome === o);
+    const prevented = by("prevented"), fails = by("still fails");
+    const rescued = prevented;
+    const mean = (xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    const nums = (list, f) => list.map((c) => c[f]).filter((x) => x != null);
+    const E = P.effects || {};
+    const sc = (c) => c.scenario, pe = (c) => c.personality;
+    const uniq = (xs) => [...new Set(xs)];
+    const listOf = (xs, f) => uniq(xs.map(f)).map((x) => f === sc ? sname(x) : pname(x)).join(", ");
+
+    v.append(strategyNote());
+
+    const stats = el("section", "stats");
+    [[prevented.length, "failures removed"], [fails.length, "failures untouched"],
+     [Math.round(prevented.length / (cells.length || 1) * 100) + "%", "of its runs prevented"]
+    ].forEach(([val, kk]) => {
+      const d = el("div", "stat");
+      add(d, el("div", "v", String(val)), el("div", "k", kk));
+      stats.append(d);
+    });
+    v.append(stats);
+
+    /* --- where it works --- */
+    const W = panel("Where it works", "The runs whose HCS failure it removed, and the ones it left failing.");
+    W.body.append(figs([
+      [sgn(mean(nums(cells, "d_fr_mean_event")), 3), "mean change of the index during the event"],
+      [sgn(mean(nums(cells, "d_fr_peak")), 3), "mean change of the peak index"],
+      [sgn(mean(nums(cells, "d_minutes_above_threshold")), 0) + " min", "mean change of time above the threshold"],
+      [fails.length ? sgn(mean(nums(fails, "shift_min")), 0) + " min" : "\u2013", "mean shift of the failures it leaves"]
+    ]));
+    W.body.append(el("div", "hr"));
+    const mk = (list, cls) => {
+      const w = el("div", "minicells");
+      list.forEach((c) => {
+        const b = el("button", cls); b.type = "button";
+        add(b, el("span", "b", cls === "fail" ? "\u2715" : "\u25c6"),
+               el("span", null, sname(c.scenario) + " \u00b7 " + pname(c.personality)));
+        b.addEventListener("click", () => go("/x/" + k + "/" + c.scenario + "/" + c.personality));
+        w.append(b);
+      });
+      return w;
+    };
+    if (prevented.length) {
+      add(W.body, el("h3", null, "Failures it removed"), mk(prevented, "pass2"));
+    }
+    if (fails.length) {
+      add(W.body, el("h3", null, "Failures it did not touch"), mk(fails, "fail"));
+    }
+    v.append(W.panel);
+
+    /* --- which metrics it moves --- */
+    if ((E.moved || []).length) {
+      const M = panel("Which metrics the strategy moves",
+        "Event-window level with the strategy minus the level without it, in <b>robust z</b>, averaged over its " +
+        cells.length + " runs. This is what the strategy changes in the system, whether or not that saves the run.");
+      const bl = el("div", "blocks");
+      const m1 = el("div", "block");
+      add(m1, el("h3", null, "Most moved metrics"));
+      m1.append(metricTable(E.moved, [
+        ["Metric", (r) => el("td", "ml", r.m)],
+        ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+        ["Change", (r) => el("td", "n " + (r.dz >= 0 ? "up" : "down"), sgn(r.dz, 2) + "\u03c3"), true]
+      ]));
+      bl.append(m1);
+      if ((E.families || []).length) {
+        const m2 = el("div", "block");
+        add(m2, el("h3", null, "Which part of the system it touches"),
+               el("p", "sub", "Mean |z| of the change, per metric family."));
+        m2.append(magRows(E.families.map((f) => [FAMILY(f.f), f.v]), "\u03c3", (fam, val) =>
+          "The " + fam + " metrics moved on average " + num(val, 2) + "\u03c3 when " + low + " was applied."));
+        bl.append(m2);
+      }
+      M.body.append(bl);
+      v.append(M.panel);
+    }
+
+    /* --- what separates a prevented failure from a failure --- */
+    if ((E.separating || []).length && rescued.length && fails.length) {
+      const R = panel("What separates a prevented failure from a run it cannot save",
+        "The same change, split between the " + rescued.length + " runs it prevented and the " +
+        fails.length + " it did not: the metrics whose response differs most are where the prevention happens.");
+      R.body.append(metricTable(E.separating, [
+        ["Metric", (r) => el("td", "ml", r.m)],
+        ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+        ["Prevented", (r) => el("td", "n " + (r.prevented >= 0 ? "up" : "down"), sgn(r.prevented, 2) + "\u03c3"), true],
+        ["Still fails", (r) => el("td", "n " + (r.stillFails >= 0 ? "up" : "down"), sgn(r.stillFails, 2) + "\u03c3"), true],
+        ["Gap", (r) => el("td", "n " + (r.gap >= 0 ? "up" : "down"), sgn(r.gap, 2) + "\u03c3"), true]
+      ]));
+      v.append(R.panel);
+    }
+
+  }
+
+  function viewPatterns() {
+    if (STRAT) return viewPreventionPatterns(STRAT);
+    const v = $("view");
+    v.innerHTML = "";
+    const S = patternStats();
+    const pct = (k, n) => n ? Math.round(k / n * 100) + "%" : "\u2013";
+    const list = (xs, f) => xs.map(f || sname).join(", ");
+    const link = (label, href, cls) => { const b = el("button", cls || null, label); b.type = "button"; b.addEventListener("click", () => go(href)); return b; };
+    const chipList = (items, mk) => { const w = el("div", "minicells"); items.forEach((x) => w.append(mk(x))); return w; };
+    const scenChip = (x, fail) => { const b = link("", "/s/" + x); b.classList.add(fail === true ? "fail" : fail === false ? "pass2" : "warn"); add(b, el("span", "b", fail === true ? "\u2715" : fail === false ? "\u2713" : "\u00b1"), el("span", null, sname(x) + " " + G().scenarios[x].nFail + "/" + G().scenarios[x].n)); return b; };
+    const cellChip = (x) => { const f = S.verdict(x[0], x[1]); const b = link("", (STRAT ? "/x/" + STRAT + "/" : "/d/") + x[0] + "/" + x[1]); b.classList.add(f ? "fail" : "pass2"); add(b, el("span", "b", f ? "\u2715" : "\u2713"), el("span", null, sname(x[0]) + " \u00b7 " + pname(x[1]))); return b; };
+    const flipRows = (rows, who) => {
+      const flip = el("div", "flip");
+      rows.forEach((r) => {
+        const row = el("div", "row"); add(row, el("div", "who", who(r)));
+        const lst = el("div", "lst");
+        if (r.broken.length) { lst.append(el("span", "k", "breaks")); r.broken.forEach((x) => lst.append(link(sname(x), "/d/" + x + "/" + r.p_or_b(r), "fail"))); }
+        if (r.rescued.length) { lst.append(el("span", "k", "rescues")); r.rescued.forEach((x) => lst.append(link(sname(x), "/d/" + x + "/" + r.p_or_b(r), "pass2"))); }
+        if (!r.broken.length && !r.rescued.length) lst.append(el("span", "k", "no change"));
+        row.append(lst); flip.append(row);
+      });
+      const wrap = el("div", "minicells"); wrap.style.display = "block"; wrap.append(flip); return wrap;
+    };
+    const b = (t) => "<b>" + t + "</b>";
+
+    add(v, el("p", "lede", "The verdict grid read by row, by column, and against the components of each compound event: what decides whether a run fails."));
+
+    /* ---- summary ---- */
+    const brokenD = S.driverFlips.reduce((a, f) => a + f.broken.length, 0), rescuedD = S.driverFlips.reduce((a, f) => a + f.rescued.length, 0);
+    const pf = S.passengerFlips.filter((f) => f.drv === "General");
+    const brokenP = pf.reduce((a, f) => a + f.broken.length, 0), rescuedP = pf.reduce((a, f) => a + f.rescued.length, 0);
+    const fragilePT = S.byPassengerType.slice().sort((a, c) => c.fails - a.fails)[0], robustPT = S.byPassengerType.slice().sort((a, c) => a.fails - c.fails)[0];
+    const best = S.ranked[0], worst = S.ranked[S.ranked.length - 1];
+    const fastest = S.timing[0], slowest = S.timing[S.timing.length - 1];
+    const modesSorted = Object.entries(S.modeTotals).sort((a, c) => c[1] - a[1]); const nFailTot = modesSorted.reduce((a, [, k]) => a + k, 0);
+    const K = panel("In short");
+    const ul = el("ul", "summary");
+    const li = (html) => { const l = el("li"); l.innerHTML = html; ul.append(l); };
+    li(b("The event comes first.") + " " + S.always.length + " of the " + S.events.length + " events fail with every personality (" + list(S.always) + "), " +
+       S.never.length + (S.never.length === 1 ? " never fails" : " never fail") + (S.never.length ? " (" + list(S.never) + ")" : "") + ". In the other " + S.depends.length + " the personality decides, and that is where the patterns below live.");
+    li(b("Compound events are the danger zone:") + " they fail " + pct(S.nFailIn(S.compound, S.PE), S.compound.length * S.PE.length) + " of the time, against " +
+       pct(S.nFailIn(S.single, S.PE), S.single.length * S.PE.length) + " for single events.");
+    li(b("The driver side is the riskier one to give a personality.") + " Switching the drivers from general to the Drivers personality turns " + brokenD + " runs into failures and rescues " + rescuedD +
+       (S.driverConsistent.length ? "; it breaks " + list(S.driverConsistent) + " for " + (S.driverConsistent.length === 1 ? "almost every" : "almost every") + " passenger type." : "."));
+    li(b("Passenger personalities matter mostly in the marginal compounds.") + " With general drivers, giving the passengers a personality turns " + brokenP + " runs into failures and rescues " + rescuedP +
+       (S.passengerFragile.length ? "; in " + list(S.passengerFragile) + " every passenger personality fails while general passengers survive." : ".") +
+       " Over both driver settings the most fragile passenger type is " + b(fragilePT.t) + " (" + fragilePT.fails + " of " + fragilePT.n + " runs), the most robust " + b(robustPT.t) + " (" + robustPT.fails + " of " + robustPT.n + ").");
+    li(b("Most robust personality: ") + pname(best.p) + " (" + best.fails + " of " + S.events.length + " events fail). " + b("Most fragile: ") + pname(worst.p) + " (" + worst.fails + " of " + S.events.length + ").");
+    li(b("Combinations are not just the sum of their parts.") + " " + S.emergent.length + " compound runs fail although neither event does on its own" + (S.emergentTop.length ? " (mostly " + list(S.emergentTop) + ")" : "") +
+       ", and " + S.masked.length + " survive although one of the events fails alone.");
+    li(b("The two sides fail in opposite ways.") + " " + (S.maskedWithDrivers === S.masked.length ? "All " : S.maskedWithDrivers + " of the ") + S.masked.length + " survivors carry the Drivers personality, and the events they shrug off are " + list(S.maskedComponents) + "; " +
+       (S.emergent.length - S.emergentWithDrivers) + " of the " + S.emergent.length + " emergent failures have general drivers. Personality-driven drivers break on single demand events and are shielded in combinations; general drivers survive the single events and get surprised by the combinations.");
+    li(b("Single events barely touch the general-driver side.") + " With general drivers the only single event that fails is " + list(S.singleGeneral.map((r) => r.s)) + "; with the Drivers personality " +
+       S.singleDrivers.map((r) => sname(r.s) + " (" + r.n + " of " + r.of + ")").join(", ") + " fail as well.");
+    if (fastest && slowest) li(b("The event sets the clock, the personality sets the verdict.") + " " + sname(fastest.s) + " fails first (median " + Math.round(fastest.med) + " min after the injection), " + sname(slowest.s) + " last (" + Math.round(slowest.med) + " min)" +
+       (S.persMed.length ? ", while across personalities the median lag only ranges " + Math.round(Math.min(...S.persMed)) + "\u2013" + Math.round(Math.max(...S.persMed)) + " min." : "."));
+    const condLead = S.PE.map((p) => { const cs = (G().personalities[p].conditions || []); if (!cs.length) return null;
+      const c = cs.find((x) => x.specific) || cs[0]; const n = c.nFail + c.nPass;
+      return pname(p) + " when " + condPhrase(c) + " (" + Math.round(c.acc * n) + " of " + n + " runs)"; }).filter(Boolean);
+    if (condLead.length) li(b("Each personality has its own failure condition.") + " Reading the event-window levels of the failing against the passing runs: " + condLead.join("; ") + ".");
+    if (modesSorted.length) li(b("What breaks:") + " " + modesSorted.map(([m, k]) => k + " of " + nFailTot + " failures are " + m + "-driven").join(", ") + ". " +
+       Object.entries(S.modeBySide).map(([side, r]) => "With " + side + ": " + Object.entries(r.m).sort((a, c) => c[1] - a[1]).map(([m, k]) => k + " " + m).join(", ") + " (of " + r.n + ")").join("; ") + ".");
+    K.body.append(ul);
+
+    /* ---- detail ---- */
+    const P = panel("Patterns in the failures");
+    const body = el("div", "pat");
+
+    // 1. tiers
+    const b1 = el("div");
+    add(b1, el("h3", null, "The event sets the tier, the personality decides inside it"),
+        el("p", "sub", "Each event is run with all " + S.PE.length + " personalities. Some fail regardless of who is in the system, some never fail, and in the rest the personality makes the difference."));
+    const tiers = el("div", "tiers");
+    [["fails with every personality", S.always, true], ["does not fail", S.never, false], ["depends on the personality", S.depends, null]].forEach(([t, lst, f]) => {
+      const d = el("div", "tier"); add(d, el("div", "t", t + " \u00b7 "), chipList(lst, (x) => scenChip(x, f)));
+      d.querySelector(".t").append(el("b", null, String(lst.length))); tiers.append(d);
+    });
+    b1.append(tiers);
+    body.append(b1);
+
+    // 2. rates
+    const b2 = el("div");
+    add(b2, el("h3", null, "Where the failures concentrate"), el("p", "sub", "Failure rate by kind of event and by side of the market that carries a personality."));
+    b2.append(figs([
+      [pct(S.nFailIn(S.single, S.PE), S.single.length * S.PE.length), "single events (" + S.nFailIn(S.single, S.PE) + " of " + S.single.length * S.PE.length + " runs)"],
+      [pct(S.nFailIn(S.compound, S.PE), S.compound.length * S.PE.length), "compound events (" + S.nFailIn(S.compound, S.PE) + " of " + S.compound.length * S.PE.length + ")"],
+      [pct(S.nFailIn(S.events, S.noDrivers), S.events.length * S.noDrivers.length), "general drivers (" + S.nFailIn(S.events, S.noDrivers) + " of " + S.events.length * S.noDrivers.length + ")"],
+      [pct(S.nFailIn(S.events, S.withDrivers), S.events.length * S.withDrivers.length), "drivers with a personality (" + S.nFailIn(S.events, S.withDrivers) + " of " + S.events.length * S.withDrivers.length + ")"]
+    ]));
+    body.append(b2);
+
+    // 3. driver side
+    const b3 = el("div");
+    add(b3, el("h3", null, "What giving the drivers a personality changes"),
+        el("p", "sub", "Same passenger type, same event, drivers switched from the general to the Drivers personality: " + brokenD + " runs turn into failures, " + rescuedD + " are rescued. " +
+          "On single events the difference is stark: with general drivers only " + list(S.singleGeneral.map((r) => r.s)) + " fails, with the Drivers personality " + list(S.singleDrivers.map((r) => r.s)) + " do."));
+    b3.append(flipRows(S.driverFlips.map((f) => ({ ...f, p_or_b: () => f.b })), (f) => PRETTY[f.a][0] + " passengers: General \u2192 Drivers"));
+    body.append(b3);
+
+    // 4. passenger side
+    const b4 = el("div");
+    add(b4, el("h3", null, "What giving the passengers a personality changes"),
+        el("p", "sub", "Same driver setting, same event, passengers switched from general to a personality. Shown for both driver settings, so the passenger effect can be read on its own and on top of the Drivers personality."));
+    b4.append(figs(S.byPassengerType.map((r) => [pct(r.fails, r.n), r.t + " passengers (" + r.fails + " of " + r.n + " runs)"])));
+    b4.append(flipRows(S.passengerFlips.map((f) => ({ ...f, p_or_b: () => f.p })), (f) => f.t + " passengers, with " + f.drvLabelTxt + ": General \u2192 " + f.t));
+    body.append(b4);
+
+    // 5. compounds against parts
+    const b5 = el("div");
+    add(b5, el("h3", null, "Compound events against their parts"),
+        el("p", "sub", "For " + S.additive + " of " + S.total + " compound runs the verdict is simply \u201cfails if either event fails on its own\u201d. The rest are emergent, and they split by side: " +
+          (S.emergent.length - S.emergentWithDrivers) + " of the " + S.emergent.length + " emergent failures have general drivers, while all " + S.masked.length + " survivors carry the Drivers personality and shrug off " + list(S.maskedComponents) + "."));
+    const g5 = el("div", "blocks");
+    const e1 = el("div", "block"); add(e1, el("h3", null, "Fails, although neither event does on its own \u00b7 " + S.emergent.length), el("p", "sub", "The combination breaks a configuration that survives each shock separately."), chipList(S.emergent, cellChip));
+    const e2 = el("div", "block"); add(e2, el("h3", null, "Survives, although one event fails on its own \u00b7 " + S.masked.length), el("p", "sub", "The second shock masks the failure the first one causes alone."), chipList(S.masked, cellChip));
+    add(g5, e1, e2); b5.append(g5);
+    body.append(b5);
+
+    // 6. timing and mode
+    const b6 = el("div");
+    add(b6, el("h3", null, "When they fail, and through what"),
+        el("p", "sub", "Minutes between the event injection and the HCS failure, over the failing runs of each event, with what drove the spike in those runs."));
+    const sc6 = el("div", "tscroll");
+    sc6.append(metricTable(S.timing, [
+      ["Event", (r) => { const td = el("td", "ml"); td.append(link(sname(r.s), "/s/" + r.s, "lnk")); return td; }],
+      ["Failing runs", (r) => el("td", "n", r.n + " / " + S.PE.length), true],
+      ["Median lag", (r) => el("td", "n", Math.round(r.med) + " min"), true],
+      ["Range", (r) => el("td", "n muted", Math.round(r.lo) + "\u2013" + Math.round(r.hi) + " min"), true],
+      ["Driven by", (r) => el("td", null, r.mode)]
+    ]));
+    b6.append(sc6);
+    body.append(b6);
+
+    // 7. conditions per personality
+    const withCond = S.PE.filter((p) => (G().personalities[p].conditions || []).length);
+    if (withCond.length) {
+      const b7 = el("div");
+      add(b7, el("h3", null, "Under what conditions each personality fails"),
+          el("p", "sub", "For each personality, the metrics whose event-window level best separates its failing runs from its passing ones, and the threshold that splits them."));
+      const cw = el("div", "cond");
+      withCond.forEach((p) => {
+        const info = G().personalities[p]; const items = info.conditions; const n = items[0].nFail + items[0].nPass;
+        const box = el("div");
+        const who = el("div", "who"); const pb = el("button", null, pname(p)); pb.type = "button"; pb.addEventListener("click", () => go("/p/" + p));
+        const h4 = el("h4"); h4.append(pb); add(who, h4, el("span", "n", items[0].nFail + " failing / " + items[0].nPass + " passing runs"));
+        add(box, who, conditionsTable(items, n)); cw.append(box);
+      });
+      b7.append(cw);
+      body.append(b7);
+    }
+
+    // 8. tolerance to the shared conditions
+    if ((M.tolerance || []).length) {
+      const b8 = el("div");
+      const cols = S.PE.filter((p) => M.tolerance.some((t) => t.cuts[p] != null));
+      add(b8, el("h3", null, "Same condition, different tolerance"),
+          el("p", "sub", "This table takes the conditions that matter for most personalities and shows, for every personality, the failing threshold on each of them: how much of that condition a personality can absorb before it fails. Lowest values mean less tolerance."));
+      const sc8 = el("div", "tscroll");
+      sc8.append(metricTable(M.tolerance, [["Condition", (r) => el("td", "ml", r.m + " " + (Object.values(r.dirs)[0] || ""))]]
+        .concat(cols.map((p) => [PRETTY[p][0] + " \u00d7 " + PRETTY[p][1], (r) => {
+          const v = r.cuts[p]; return el("td", "tol", v == null ? "\u2013" : num(v, 2)); }, true]))));
+      b8.append(sc8);
+      body.append(b8);
+    }
+
+    P.body.append(body);
+    v.append(P.panel);
+    v.append(K.panel);
+    v.append(glossaryPanel());
+  }
+
+  /* ================= CELL ================= */
+  function viewCell(s, p) {
+    // this view is the run without prevention, whatever grid is selected elsewhere
+    const c = cellOf.get(s + "|" + p);
+    const v = $("view");
+    v.innerHTML = "";
+    const failed = blOf(c).failure === true;
+
+    const banner = el("div", "verdict-banner " + (failed ? "fail" : "pass"));
+    const txt = el("div");
+    const mins = failed && blOf(c).failure_timestamp != null ? Math.round((blOf(c).failure_timestamp - 79200) / 60) : null;
+    txt.innerHTML = failed
+      ? "<p><strong>" + sname(s) + " \u00b7 " + pname(p) + "</strong> was declared a HCS failure at <span class='mono'>t = " +
+        int(blOf(c).failure_timestamp) + " s</span>" + (mins != null ? ", " + mins + " minutes after the event was injected" : "") + "</p>"
+      : "<p><strong>" + sname(s) + " \u00b7 " + pname(p) + "</strong> passed: the index never went out of range on the three dimensions together" +
+        (blOf(c).n_spikes > 0 ? ", though it did break the hardiness threshold " + blOf(c).n_spikes + " time" + (blOf(c).n_spikes > 1 ? "s" : "") + "." : ".") + "</p>";
+    add(banner, el("div", "vg", failed ? "\u2715 FAIL" : "\u2713 PASS"), txt);
+    v.append(banner);
+
+    /* --- the index over the run --- */
+    const T0 = panel("The failed_requests index over the run");
+    T0.body.append(indexChart(
+      [{ trace: c.trace, color: "var(--r4)", strong: true,
+         cutAt: failed ? blOf(c).failure_timestamp : null }],
+      { event: s === "normal" ? null : G().scenarios[s].window,
+        failTs: failed ? blOf(c).failure_timestamp : null,
+        xMin: DAY_START, xMax: AXIS_END,
+        readoutHint: "Hover the chart to read off a value." }));
+    v.append(T0.panel);
+
+    /* --- intrinsic characteristics --- */
+    const A = panel("What this run does");
+    A.body.append(figs([
+      [num(c.fr_mean_event, 3), "mean failed_requests index during the event"],
+      [num(c.fr_mean, 3), "mean failed_requests index over the whole run"],
+      [num(c.fr_peak, 2), "peak failed_requests index (maximum)"],
+      [blOf(c).n_spikes, "spike episodes"],
+      [Math.round(blOf(c).spike_minutes) + " min", "total time in spike"],
+      [Math.round(blOf(c).spike_minutes_in_event) + " min", "of that, in the event"]
+    ]));
+    const bl = el("div", "blocks");
+    add(bl, attributionBlock(c), decompBlock(c));
+    if (!failed) {
+      bl.append(splitBlock("What was failing anyway",
+        "Here are the two failure metrics at their real levels over the event window, "
+        + "and how the failures divide between them.",
+        c.window));
+    }
+    if (c.fr_component_residual != null) {
+      const cr = el("div", "block");
+      const sup = c.fr_component_residual > 0;
+      add(cr, el("h3", null, "Against the sum of its parts"),
+             el("p", "sub", "The two events separately predict " + num(c.fr_expected_from_components, 3) +
+                "; injected together they deliver " + num(c.fr_expected_from_components + c.fr_component_residual, 3) + "."));
+      cr.append(signedRows([
+        ["Expected", c.fr_expected_from_components],
+        ["Observed", c.fr_expected_from_components + c.fr_component_residual]
+      ], ["Residual", c.fr_component_residual]));
+      add(cr, el("p", "sub", sup
+        ? "Super-additive: the pair costs more than the two shocks separately."
+        : "Sub-additive: the two shocks partly cancel."));
+      bl.append(cr);
+    }
+    if (bl.children.length) {
+      A.body.append(el("div", "hr"));
+      A.body.append(bl);
+    }
+    v.append(A.panel);
+
+    /* --- why it failed --- */
+    if (failed && blOf(c).failSpike) {
+      const fs = blOf(c).failSpike;
+      const B = panel("Why it failed", "The spike episode the failure timestamp falls inside, and what moved during it.");
+      const why = el("div");
+      const drv = Math.abs(fs.ns || 0) >= Math.abs(fs.ca || 0) ? "rides_not_served" : "passengers_cancel";
+      why.innerHTML = "<p style='font-size:13.5px;color:var(--ink-2)'>The failure sits inside a <strong>" +
+        num(fs.dur, 0) + "-minute</strong> spike running from <span class='mono'>" + int(fs.start) + " s</span> to <span class='mono'>" +
+        int(fs.end) + " s</span>. The index averaged <span class='mono'>" + num(fs.mean, 3) +
+        "</span> across it and peaked at <span class='mono'>" + num(fs.peak, 2) +
+        "</span>. <strong class='mono'>" + drv + "</strong> accounted for most of the climb.</p>";
+      B.body.append(why);
+      B.body.append(el("div", "hr"));
+      // All three indices the verdict rests on, each beside its own threshold.
+      B.body.append(figs([
+        [num(fs.mean, 3), "mean failed_requests index across the spike"],
+        [num(fs.peak, 3), "hardiness peak across the spike"],
+        [TH().p99_h.toFixed(3), "hardiness threshold"],
+        [fs.conPeak == null ? "\u2013" : num(fs.conPeak, 3), "consistency peak across the spike"],
+        [TH().p99_c.toFixed(3), "consistency threshold"],
+        [fs.resRun == null ? "\u2013" : int(fs.resRun), "resilience run, timestamps"],
+        [int(TH().p99_r), "resilience threshold, timestamps"],
+        [num(fs.dur, 0) + " min", "spike duration"],
+        [(POSITION[fs.pos] || [fs.pos, "timing relative to the event"])[0],
+         (POSITION[fs.pos] || [fs.pos, "timing relative to the event"])[1]]
+      ]));
+
+      if (fs.nsIn != null) {
+        B.body.append(el("div", "hr"));
+        const d2 = el("div", "block");
+        B.body.append(splitBlock("What was actually failing",
+          "The two failure metrics at their real levels during the spike, and how the failures divide "
+          + "between them (this is the level, not the rise).",
+          fs));
+      }
+      v.append(B.panel);
+    }
+
+    /* --- most affected metrics --- */
+    if (blOf(c).affected && blOf(c).affected.length) {
+      const C2 = panel("Most affected metrics",
+        "Measured inside the spike, in <b>robust z</b> units. \u201cvs outside event window\u201d compares against this same "
+        + "run away from the shock. \u201cvs baseline reference\u201d is the gap from the baseline normal run used for threshold at the same clock time.");
+      const C2scroll = el("div", "tscroll");
+      C2scroll.append(metricTable(blOf(c).affected, [
+        ["Metric", (r) => el("td", "ml", r.m)],
+        ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+        ["In spike", (r) => el("td", "n", num(r.lvl, 2)), true],
+        ["Outside event", (r) => el("td", "n muted", num(r.base, 2)), true],
+        ["vs outside event window", (r) => withTip(el("td", "n " + (r.dev >= 0 ? "up" : "down"), sgn(r.dev, 1) + "\u03c3"),
+          zTip(r.m, r.dev, "inside the spike, against this same run outside the event window")), true],
+        ["vs baseline reference", (r) => withTip(el("td", "n " + (r.ref >= 0 ? "up" : "down"), sgn(r.ref, 1) + "\u03c3"),
+          zTip(r.m, r.ref, "inside the spike, against the baseline normal run at the same clock time")), true]
+      ]));
+      C2.body.append(C2scroll);
+      v.append(C2.panel);
+    }
+
+    /* --- why: attribution of causes --- */
+    const E = panel("Where those movements come from",
+      "The same event-window split as above, applied metric by metric and ranked by <b>robust z</b>.");
+    const cs = el("div", "causes");
+    add(cs,
+      causeList("Carried by the event", "Metrics the event moves regardless of who is in the system.", parseList(c.causes_scenario), "\u03c3",
+                "because of the event alone"),
+      causeList("Carried by the personality", "Metrics the personality moves regardless of the event.", parseList(c.causes_personality), "\u03c3",
+                "because of the personality alone"),
+      causeList("Carried by the interaction", "Metrics that move only for this pairing (emergent behavior).", parseList(c.causes_interaction), "\u03c3",
+                "beyond what the event and the personality explain on their own"));
+    if (cs.children.length) {
+      E.body.append(cs);
+      v.append(E.panel);
+    }
+    v.append(glossaryPanel());
+  }
+
+  /* ================= EVENT ================= */
+  function viewScenario(s) {
+    const info = G().scenarios[s];
+    const v = $("view");
+    v.innerHTML = "";
+
+    const H = panel(sname(s), info.mechanism === "none" ? "The normal baseline run: no event is injected."
+      : "Injected at t = 79,200 s for " + info.durationMin + " minutes. " + info.mechanism + ".");
+    H.body.append(figs([
+      [blOfInfo(info).nFail + " / " + blOfInfo(info).n, "personalities failed"],
+      [(blOfInfo(info).nFail / blOfInfo(info).n * 100).toFixed(0) + "%", "failure rate"],
+      [num(info.meanIndex, 3), "mean failed_requests index during event, over its " + blOfInfo(info).n + " runs"],
+      [num(info.peak, 2), "highest failed_requests index reached by any of them"],
+      [num(blOfInfo(info).spikeMin, 0) + " min", "mean time in spike"],
+      [sgn(info.effect, 3), "event effect on the failed_requests index"],
+      [info.medianFailTs == null ? "\u2013" : int(info.medianFailTs) + " s", "median failure time"]
+    ]));
+    v.append(H.panel);
+
+    if (STRAT) v.append(strategyNote());
+    const B = panel("Which personalities break it",
+      "Select any run for its full breakdown. The index range across the " + blOfInfo(info).n + " runs is " +
+      num(info.meanIndexRange[0], 3) + " to " + num(info.meanIndexRange[1], 3) + ".");
+    B.body.append(miniCells(PE.map((p) => ({
+      s: s, p: p, label: pname(p), fail: blOf(gridCell(s + "|" + p)).failure === true
+    }))));
+    B.body.append(el("div", "hr"));
+    add(B.body, el("h3", null, "All eight, over the run"),
+                el("p", "sub", "One trace per personality, red where the run was declared a failure."));
+    B.body.append(indexChart(
+      PE.map((p) => {
+        const cc = gridCell(s + "|" + p);
+        const bad = cc && blOf(cc).failure === true;
+        return { trace: cc && cc.trace, color: bad ? "var(--critical)" : "var(--r3)",
+                 strong: false, dim: !bad, cutAt: bad ? blOf(cc).failure_timestamp : null };
+      }),
+      { event: s === "normal" ? null : info.window, height: 260, xMin: DAY_START,
+        xMax: AXIS_END }));
+    const lgd = el("div", "legend");
+    add(lgd, swatch("var(--critical)", "failed"), swatch("var(--r3)", "passed"));
+    B.body.append(lgd);
+
+    v.append(B.panel);
+
+    // For the quiet run every event effect is zero by construction, so the panel is skipped.
+    const C2 = (s === "normal" || STRAT) ? null : panel("What the event does to the system",
+      "Metrics carrying the event effect in <b>robust z</b> units.");
+    if (C2) {
+    const bl = el("div", "blocks");
+    const m1 = el("div", "block");
+    add(m1, el("h3", null, "Most moved metrics"), el("p", "sub", "Event-window level against the normal baseline."));
+    const scenAgainst = "from its level in the reference run, over the event window";
+    m1.append(metricTable(info.topMetrics, [
+      ["Metric", (r) => el("td", "ml", r.m)],
+      ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+      ["Effect", (r) => withTip(el("td", "n " + (r.z >= 0 ? "up" : "down"), sgn(r.z, 1) + "\u03c3"), zTip(r.m, r.z, scenAgainst)), true]
+    ]));
+    bl.append(m1);
+    const m2 = el("div", "block");
+    add(m2, el("h3", null, "Which part of the system it disturbs"), el("p", "sub", "Mean |z| of the event effect per metric family."));
+    m2.append(magRows(info.families.map((f) => [FAMILY(f.f), f.v]), "\u03c3", (fam, v) =>
+      "The " + fam + " metrics moved on average " + num(v, 2) + "\u03c3 (robust standard deviations) away " + scenAgainst + "."));
+    bl.append(m2);
+    if (info.traits.length) {
+      const m3 = el("div", "block");
+      add(m3, el("h3", null, "Traits in play"), el("p", "sub", "Moved the same way for every one of the eight personalities."));
+      m3.append(metricTable(info.traits, [
+        ["Metric", (r) => el("td", "ml", r.m)],
+        ["Mean z", (r) => withTip(el("td", "n " + (r.z >= 0 ? "up" : "down"), sgn(r.z, 1) + "\u03c3"), TRAIT_SCEN(r.m, r.z, r.d)), true],
+        ["Dir", (r) => el("td", null, r.d === "up" ? "\u2191" : "\u2193")]
+      ]));
+      bl.append(m3);
+    }
+    C2.body.append(bl);
+    v.append(C2.panel);
+    }
+
+    if (info.additivity) {
+      const a = info.additivity;
+      const D2 = panel("Against the sum of its parts",
+        "Compared with " + info.components.map((x) => x.replace(/_/g, " ")).join(" and ") +
+        " injected on their own, averaged over the eight personalities.");
+      D2.body.append(signedRows([["Expected", a.expected], ["Observed", a.observed]], ["Residual", a.residual]));
+      add(D2.body, el("p", "sub", a.superAdditive + " of " + a.n +
+        " personalities show a super-additive response (that is, the combination costs more than the two shocks separately)."));
+      v.append(D2.panel);
+    }
+    v.append(glossaryPanel());
+  }
+
+  /* ================= PERSONALITY ================= */
+  function viewPersonality(p) {
+    const info = G().personalities[p];
+    const v = $("view");
+    v.innerHTML = "";
+
+    const isBase = p === "baseline";
+    const H = panel(pname(p), isBase
+      ? "The no-personality configuration: general driver and general passenger personalities. Every metric contrast on this page is measured against this run with no event (normal)."
+      : "Driver personality " + PRETTY[p][1] + ", passenger personality " + PRETTY[p][0] + ".");
+    H.body.append(figs([
+      [blOfInfo(info).nFail + " / " + blOfInfo(info).n, "events failed"],
+      [(blOfInfo(info).nFail / blOfInfo(info).n * 100).toFixed(0) + "%", "failure rate"],
+      [num(info.meanIndex, 3), "mean failed_requests index over its " + blOfInfo(info).n + " events"],
+      [num(info.peak, 2), "highest failed_requests index reached by any of them"],
+      [num(blOfInfo(info).spikeMin, 0) + " min", "mean time in spike"],
+      [sgn(info.effect, 3), "personality effect on the failed_requests index"]
+    ]));
+    v.append(H.panel);
+
+    if (STRAT) v.append(strategyNote());
+    const B = panel("Which events break it", "Select any run for its full breakdown.");
+    B.body.append(miniCells(SC.map((s) => ({
+      s: s, p: p, label: sname(s), fail: blOf(gridCell(s + "|" + p)).failure === true
+    }))));
+    v.append(B.panel);
+
+    // For general x general every personality effect is zero by construction - it is the run the
+    // others are measured against - so the panel would say nothing.
+    const C2 = (isBase || STRAT) ? null : panel("What this personality does to the system",
+      "Metrics carrying the personality effect in <b>robust z</b> units.");
+    if (C2) {
+    const bl = el("div", "blocks");
+    const m1 = el("div", "block");
+    add(m1, el("h3", null, "Most moved metrics"), el("p", "sub", "Level with no event (normal) against the reference run."));
+    const persAgainst = "from the reference, over the event window";
+    m1.append(metricTable(info.topMetrics, [
+      ["Metric", (r) => el("td", "ml", r.m)],
+      ["Family", (r) => el("td", "fam", FAMILY(r.f))],
+      ["Effect", (r) => withTip(el("td", "n " + (r.z >= 0 ? "up" : "down"), sgn(r.z, 1) + "\u03c3"), zTip(r.m, r.z, persAgainst)), true]
+    ]));
+    bl.append(m1);
+    const m2 = el("div", "block");
+    add(m2, el("h3", null, "Which part of the system it disturbs"), el("p", "sub", "Mean |z| of the personality effect per metric family."));
+    m2.append(magRows(info.families.map((f) => [FAMILY(f.f), f.v]), "\u03c3", (fam, v) =>
+      "The " + fam + " metrics moved on average " + num(v, 2) + "\u03c3 (robust standard deviations) away " + persAgainst + "."));
+    bl.append(m2);
+    if (info.traits.length) {
+      const m3 = el("div", "block");
+      add(m3, el("h3", null, "Traits in play"), el("p", "sub", "Moved the same way in every one of the 15 events."));
+      m3.append(metricTable(info.traits, [
+        ["Metric", (r) => el("td", "ml", r.m)],
+        ["Mean z", (r) => withTip(el("td", "n " + (r.z >= 0 ? "up" : "down"), sgn(r.z, 1) + "\u03c3"), TRAIT_PERS(r.m, r.z, r.d)), true],
+        ["Dir", (r) => el("td", null, r.d === "up" ? "\u2191" : "\u2193")]
+      ]));
+      bl.append(m3);
+    }
+    C2.body.append(bl);
+    v.append(C2.panel);
+    }
+
+    if ((info.conditions || []).length) {
+      const n = info.conditions[0].nFail + info.conditions[0].nPass;
+      const W = panel("Under what conditions it fails",
+        "Event-window levels of its " + info.conditions[0].nFail + " failing runs against its " + info.conditions[0].nPass + " passing ones: the metrics that separate them best, and the threshold that splits them.");
+      W.body.append(conditionsTable(info.conditions, n));
+      v.append(W.panel);
+    }
+    if (info.additivity) {
+      const a = info.additivity;
+      const D2 = panel("Against the sum of its parts",
+        "Compared with " + info.parts.map((x) => x.replace(/_/g, " ")).join(" and ") + " on their own, averaged over the 15 events.");
+      D2.body.append(signedRows([["Expected", a.expected], ["Observed", a.observed]], ["Residual", a.residual]));
+      add(D2.body, el("p", "sub", a.superAdditive + " of " + a.n +
+        " events show a super-additive response (that is, the combination costs more than its two components separately)."));
+      v.append(D2.panel);
+    }
+    v.append(glossaryPanel());
+  }
+
+  /* ================= render ================= */
+  $("footer").innerHTML =
+    "Failed_requests index and verdicts from <code>rq1-healthiness.ipynb</code> \u00b7 " +
+    "Prevention from <code>rq2-prevention.ipynb</code> \u00b7 " +
+    "Analysis from <code>rq3-analysis.ipynb</code> \u00b7 " +
+    "120 runs \u00b7 " + "600 s rolling mean, " + M.preprocessing.stride + " stride step, warm-up cut at 10800 s, tail cut at " + M.preprocessing.cut + " s.";
+  // Toggles the prior-work verdict column of the overview grid, the only place it applies.
+  /* ================= one run with a prevention strategy ================= */
+  function viewPrevCell(k, s, p) {
+    const pc = prevCellOf(k, s, p);
+    const base = gridCell(s + "|" + p);
+    const v = $("view");
+    v.innerHTML = "";
+    const o = outcomeOf(pc);
+    const strategy = PREV[k].label;
+
+    const banner = el("div", "verdict-banner " + (o.cls === "fail" ? "fail" : "pass"));
+    const mins = pc.failure && pc.failure_timestamp != null
+      ? Math.round((pc.failure_timestamp - 79200) / 60) : null;
+    const baseMins = pc.base_failure_timestamp != null
+      ? Math.round((pc.base_failure_timestamp - 79200) / 60) : null;
+    const txt = el("div");
+    txt.innerHTML = "<p><strong>" + sname(s) + " \u00b7 " + pname(p) + "</strong> with <strong>" +
+      strategy.toLowerCase() + "</strong>: " +
+      (pc.outcome === "prevented"
+        ? "the HCS no longer fails. Without the strategy it failed at <span class='mono'>t = " +
+          int(pc.base_failure_timestamp) + " s</span>" + (baseMins != null ? ", " + baseMins + " minutes after the injection" : "") + "."
+        : pc.failure
+          ? "the HCS still fails, at <span class='mono'>t = " + int(pc.failure_timestamp) + " s</span>" +
+            (mins != null ? ", " + mins + " minutes after the injection" : "") +
+            (pc.base_failure && baseMins != null
+              ? " (without the strategy: " + baseMins + " minutes)." : ".")
+          : "the HCS passes, as it did without the strategy.") + "</p>";
+    add(banner, el("div", "vg", o.tag), txt);
+    v.append(banner);
+
+    /* --- the index, with and without the strategy --- */
+    const T = panel("The failed_requests index, with and without " + strategy.toLowerCase(),
+      "Solid: the run with the strategy. Dashed: the same run without it. A failing run is drawn up to its failure.");
+    T.body.append(indexChart(
+      [{ trace: base && base.trace, color: "var(--ink-3)", dash: true,
+         cutAt: pc.base_failure && pc.base_failure_timestamp != null ? pc.base_failure_timestamp : null },
+       { trace: pc.trace, color: o.cls === "fail" ? "var(--critical)" : "var(--prevented)", strong: true,
+         cutAt: pc.failure ? pc.failure_timestamp : null }],
+      { event: s === "normal" ? null : G().scenarios[s].window,
+        failTs: pc.failure ? pc.failure_timestamp : null,
+        xMin: DAY_START, xMax: AXIS_END,
+        readoutHint: "Hover the chart to read off a value." }));
+    v.append(T.panel);
+
+    /* --- what this run does, same tiles as a run without prevention --- */
+    const A = panel("What this run does");
+    A.body.append(figs([
+      [num(pc.fr_mean_event, 3), "mean failed_requests index during the event"],
+      [num(pc.fr_mean, 3), "mean failed_requests index over the whole run"],
+      [num(pc.fr_peak, 2), "peak failed_requests index (maximum)"],
+      [pc.n_spikes, "spike episodes"],
+      [Math.round(pc.spike_minutes) + " min", "total time in spike"],
+      [Math.round(pc.spike_minutes_in_event) + " min", "of that, in the event"]
+    ]));
+    v.append(A.panel);
+
+    /* --- what the strategy changed --- */
+    const C = panel("What " + strategy.toLowerCase() + " changed",
+      "Every figure is the run with the strategy minus the same run without it.");
+    C.body.append(figs([
+      [sgn(pc.d_fr_mean_event, 3), "index during the event"],
+      [sgn(pc.d_fr_peak, 3), "peak index"],
+      [sgn(pc.d_minutes_above_threshold, 0) + " min", "time above the hardiness threshold"],
+      [pc.base_failure && pc.failure && pc.delay_min != null ? sgn(pc.delay_min, 0) + " min" : "\u2013",
+       "shift of the failure time"],
+      [pc.base_failure ? (pc.failure ? "no" : "yes") : "\u2013", "failure removed"]
+    ]));
+    v.append(C.panel);
+
+    /* --- the rise, and the metrics around the spike: same blocks as elsewhere --- */
+    if (pc.d_not_served != null) {
+      const R = panel("What the rise is made of",
+        "Shapley split of the rise from the pre-spike hour, over the spike that carries the verdict.");
+      const rows = [["rides_not_served", pc.d_not_served], ["passengers_cancel", pc.d_cancel],
+                    ["passengers_new (demand)", pc.d_demand]];
+      R.body.append(metricTable(rows, [
+        ["Input", (r) => el("td", "ml", r[0])],
+        ["Contribution to the rise", (r) => { const td = el("td", "mono"); td.style.textAlign = "right"; td.textContent = sgn(r[1], 4); return td; }, true]
+      ]));
+      R.body.append(el("p", "sub", "Unserved requests are " + num((pc.share_not_served || 0) * 100, 0) +
+        "% of the failed requests inside the spike."));
+      v.append(R.panel);
+    }
+
+    if (pc.affected && pc.affected.length) {
+      const M = panel("Metrics most out of range inside the spike",
+        "Robust z against the run without personality and without event, measured over the same spike.");
+      M.body.append(metricTable(pc.affected, [
+        ["Metric", (r) => el("td", "ml", r.metric)],
+        ["Level", (r) => { const td = el("td", "mono"); td.style.textAlign = "right"; td.textContent = num(r.spike_level, 3); return td; }, true],
+        ["vs its own run", (r) => { const td = el("td", "mono"); td.style.textAlign = "right"; td.textContent = sgn(r.dev_vs_own, 1); return td; }, true],
+        ["vs reference", (r) => { const td = el("td", "mono"); td.style.textAlign = "right"; td.textContent = sgn(r.dev_vs_reference, 1); return td; }, true]
+      ]));
+      v.append(M.panel);
+    }
+
+    const back = el("div", "cta");
+    const bb = el("button", null, "\u2190 the same run without prevention"); bb.type = "button";
+    bb.addEventListener("click", () => go("/d/" + s + "/" + p));
+    add(back, bb, el("span", "note", "Thresholds are the ones fitted on the no-personality normal run, so the two runs are judged by the same bar."));
+    v.append(back);
+  }
+
+  // Shown on every view while a strategy is selected: what the page is describing, and how
+  // much of the grid that strategy has actually been run on.
+  function strategyNote() {
+    const g = G();
+    const run = g.cells.size, total = SC.length * PE.length;
+    const n = el("div", "verdict-banner");
+    const t = el("div");
+    t.innerHTML = "<p>Showing the runs with <strong>" + PREV[STRAT].label.toLowerCase() +
+      "</strong>: <strong>" + run + "</strong> of the " + total + " cells of the grid have been run with it. " +
+      "Everything on this page is computed over those runs alone; the rest are marked not run.</p>";
+    add(n, el("div", "vg", "PREVENTION"), t);
+    return n;
+  }
+
+  function strategyToggle() {
+    if (!STRATS.length) return null;
+    const seg = el("div", "seg");
+    const mk = (key, label) => {
+      const b = el("button", null, label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(STRAT === key));
+      b.addEventListener("click", () => { STRAT = key; go(curPath()); render(); });
+      seg.append(b);
+    };
+    mk(null, "No prevention");
+    STRATS.forEach((k) => mk(k, PREV[k].label));
+    return seg;
+  }
+
+  function paperToggle() {
+    const seg = el("div", "seg");
+    const btn = el("button", null, "Puccinelli et al.");
+    btn.type = "button";
+    btn.setAttribute("aria-pressed", String(SHOW_PAPER));
+    btn.addEventListener("click", () => { SHOW_PAPER = !SHOW_PAPER; render(); });
+    seg.append(btn);
+    return seg;
+  }
+
+  function render() {
+    const r = route();
+    // The Puccinelli et al. column only belongs to the grid without prevention; its toggle is
+    // hidden when a strategy is selected, so the column must not survive the switch either.
+    if (STRAT) SHOW_PAPER = false;
+    crumbs(r);
+    if (r.v === "cell") viewCell(r.s, r.p);
+    else if (r.v === "prevcell") viewPrevCell(r.k, r.s, r.p);
+    else if (r.v === "scenario") viewScenario(r.s);
+    else if (r.v === "personality") viewPersonality(r.p);
+    else if (r.v === "patterns") viewPatterns();
+    else viewHome();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  addEventListener("hashchange", render);
+  render();
+})();
+</script>
