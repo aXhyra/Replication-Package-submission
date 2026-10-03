@@ -1,0 +1,7 @@
+.venv
+.history
+.ipynb_checkpoints
+__pycache__
+datasets/cache
+old
+.DS_Store
