@@ -1,6 +1,5 @@
-# Testing Human-Centric Systems: Personality Matters
+# Replication Package
 
-This package replicates the results of **Testing Human-Centric Systems: Personality Matters**.
 It contains the healthiness of the ride-hailing Human-Centric System (HCS) of San Francisco over a grid of 15 events × 8 personality populations = 120 runs (**RQ1**), the effect of two prevention strategies on the HCS failures (**RQ2**), and the attribution of the HCS failures to the event, the personality and their interaction (**RQ3**).
 
 
